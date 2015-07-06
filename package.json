@@ -1,0 +1,19 @@
+{
+  "name": "node-mind",
+  "description": "A basic neural network library",
+  "author": "Steven Miller",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stevenmiller888/mind"
+  },
+  "main": "lib/index.js",
+  "license": "MIT",
+  "dependencies": {
+    "node-matrix": "0.0.6"
+  },
+  "devDependencies": {
+    "eslint": "^0.22.1",
+    "mocha": "2.x"
+  }
+}
