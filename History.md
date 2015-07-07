@@ -1,4 +1,9 @@
 
+0.0.3 / July 07, 2015
+
+  * Updated readme
+  * Updated example
+
 0.0.2 / July 07, 2015
 
   * Bumped matrix version

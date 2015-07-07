@@ -34,7 +34,7 @@ mind.predict([ 1, 0 ]); // ~ 1
 
 ## Plugins
 
-Use transformation plugins so you can perform analysis on any dataset. A transform is just an object with a `before` function and an `after` function, which will be applied to the data before and after analysis. Here's an example currency transform:
+Use transformation plugins so you can perform analysis on any dataset. A transform is just an object with a `before` function and an `after` function, which will be applied to each data point before and after analysis. Here's an example currency transform:
 
 ```js
 var currency = {
@@ -49,7 +49,7 @@ var currency = {
 
 This lets you to pass it in the following training data:
 
-```
+```js
 [
   { input: ["$1500", "$870"], output: [ "$1010" ] },
   { input: ["$1400", "$700"], output: [ "$1140" ] },
@@ -57,6 +57,10 @@ This lets you to pass it in the following training data:
   { input: ["$1800", "$1000"], output: [ "$910" ] }
 ]
 ```
+
+Here's a list of available plugins:
+
+- [currency](https://github.com/stevenmiller888/mind-currency)
 
 ## License
 

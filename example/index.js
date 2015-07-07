@@ -3,7 +3,7 @@
  * Dependencies.
  */
 
-var currency = require('./transform');
+var currency = require('mind-currency');
 var Mind = require('..');
 
 /**
