@@ -14,7 +14,7 @@ Mind is a flexible neural network library.
 
 ## Installation
 
-    $ npm install mind
+    $ npm install node-mind
 
 ## Usage
 
