@@ -24,4 +24,10 @@ describe('Mind()', function() {
     var mind = Mind();
     assert(mind instanceof Mind);
   });
+
+  it('should accept an options object', function() {
+    var mind = Mind({ hiddenNeurons: 2, learningRate: 0.7 });
+    assert(mind.hiddenNeurons === 2);
+    assert(mind.learningRate === 0.7);
+  });
 });

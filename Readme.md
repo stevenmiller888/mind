@@ -1,15 +1,15 @@
 
-# Mind (WIP)
+# Mind
 [![NPM version][npm-image]][npm-url]
 [![build status][circle-image]][circle-url]
 [![license][license-image]][license-url]
 
-Mind is a neural network library.
+Mind is a flexible neural network library.
 
 ## Features
 
-- Optimized - uses vectorized notation to optimize computation
-- Pluggable - apply transforms to any dataset
+- Optimized - uses a vectorized implementation to optimize computation
+- Pluggable - apply transforms so you can pass in diverse datasets
 - Configurable - allows you to choose the network parameters
 
 ## Installation
