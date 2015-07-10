@@ -8,9 +8,9 @@ Mind is a flexible neural network library.
 
 ## Features
 
-- Optimized - uses a vectorized implementation to optimize computation
+- Configurable - allows you to customize the network topology
 - Pluggable - apply transforms so you can pass in diverse datasets
-- Configurable - allows you to choose the network parameters
+- Vectorized - uses a matrix implementation to process all inputs simultaneously
 
 ## Installation
 
