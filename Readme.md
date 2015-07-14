@@ -8,9 +8,9 @@ Mind is a flexible neural network library.
 
 ## Features
 
-- Configurable - allows you to customize the network topology
+- Vectorized - uses a matrix implementation to process all training data simultaneously
 - Pluggable - apply transforms so you can pass in diverse datasets
-- Vectorized - uses a matrix implementation to process all inputs simultaneously
+- Configurable - allows you to customize the network topology
 
 ## Installation
 
@@ -61,6 +61,37 @@ This lets you to pass it in the following training data:
 Here's a list of available plugins:
 
 - [currency](https://github.com/stevenmiller888/mind-currency)
+
+## API
+
+### Mind(options)
+Create a new instance of Mind that can learn to make predictions.
+
+The available options are:
+* `learningRate`: how quickly the network should learn.
+* `hiddenNeurons`: how many neurons are in the hidden layer.
+* `activator`: which activation function to use, `sigmoid` or `tanh`.
+
+#### .learn()
+
+Learn from training data, which should look something like the following:
+
+```js
+[
+  { input: [0, 0], output: [ 0 ] },
+  { input: [0, 1], output: [ 1 ] },
+  { input: [1, 0], output: [ 1 ] },
+  { input: [1, 1], output: [ 0 ] }
+]
+```
+
+#### .predict()
+
+Make a new prediction after training is finished. You can pass an array:
+
+```
+[0, 0]
+```
 
 ## License
 
