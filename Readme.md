@@ -1,16 +1,15 @@
-
 # Mind
 [![NPM version][npm-image]][npm-url]
 [![build status][circle-image]][circle-url]
 [![license][license-image]][license-url]
 
-Mind is a flexible neural network library.
+![Mind Logo](https://cldup.com/5sMq04CXz3.png)
 
-![](https://cldup.com/yPjy48jq7R.png)
+Mind is a flexible neural network library for Node.js and the browser.
 
 ## Features
 
-- Vectorized - uses a matrix implementation to process all training data simultaneously
+- Vectorized - uses a matrix implementation to efficiently process training data
 - Pluggable - apply transforms so you can pass in diverse datasets
 - Configurable - allows you to customize the network topology
 
