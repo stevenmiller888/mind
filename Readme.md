@@ -6,6 +6,8 @@
 
 Mind is a flexible neural network library.
 
+![](https://cldup.com/yPjy48jq7R.png)
+
 ## Features
 
 - Vectorized - uses a matrix implementation to process all training data simultaneously
