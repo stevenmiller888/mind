@@ -1,11 +1,10 @@
-# Mind
+![Mind Logo](https://cldup.com/D1yUfBz7Iu.png)
+
+A flexible neural network library for Node.js and the browser.
+
 [![NPM version][npm-image]][npm-url]
 [![build status][circle-image]][circle-url]
 [![license][license-image]][license-url]
-
-![Mind Logo](https://cldup.com/5sMq04CXz3.png)
-
-Mind is a flexible neural network library for Node.js and the browser.
 
 ## Features
 
