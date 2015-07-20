@@ -1,4 +1,8 @@
 
+0.0.7 / July 20, 2015
+
+  * Added link to demo in readme
+
 0.0.6 / July 20, 2015
 
   * Moved activation functions into separate modules for better core code clarity
