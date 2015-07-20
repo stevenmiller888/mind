@@ -1,4 +1,8 @@
 
+0.0.6 / July 20, 2015
+
+  * Moved activation functions into separate modules for better core code clarity
+
 0.0.5 / July 20, 2015
 
   * Exposed iterations at the API level to improve flexibility

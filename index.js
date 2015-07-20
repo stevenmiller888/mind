@@ -1,10 +1,15 @@
-!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.mind=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.Mind=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 
 /**
  * Dependencies.
  */
 
+var sigmoidPrime = require('sigmoid-prime');
+var htanPrime = require('htan-prime');
 var Matrix = require('node-matrix');
+var sigmoid = require('sigmoid');
+var sample = require('samples');
+var htan = require('htan');
 
 /**
  * References.
@@ -36,8 +41,15 @@ function Mind(opts) {
   // parameters
   this.learningRate = opts.learningRate || 0.7;
   this.hiddenNeurons = opts.hiddenNeurons || 3;
-  this.activate = opts.activator === 'tanh' ? tanh : sigmoid;
-  this.activatePrime = opts.activator === 'tanh' ? tanhPrime : sigmoidPrime;
+  this.iterations = opts.iterations || 10000;
+
+  if (opts.activator === 'htan') {
+    this.activate = htan;
+    this.activatePrime = htanPrime;
+  } else {
+    this.activate = sigmoid;
+    this.activatePrime = sigmoidPrime;
+  }
 }
 
 /**
@@ -94,7 +106,7 @@ Mind.prototype.learn = function(examples) {
   this.hiddenOutputWeights = Matrix({ rows: hiddenNeurons, columns: outputNeurons, values: sample });
 
   // number of iterations
-  for (var i = 0; i < 10000; i++) {
+  for (var i = 0; i < this.iterations; i++) {
     // forward propagate
     this.forward(inputMatrix);
 
@@ -175,12 +187,11 @@ Mind.prototype.predict = function(input) {
  */
 
 Mind.prototype.back = function(targetMatrix) {
-  var activate = this.activate;
   var activatePrime = this.activatePrime;
 
   // compute output layer changes
-  var errorOutputLayer = subtract(targetMatrix, this.outputResult); // what did you predict, NN? what should it be? what's the differnce?
-  var deltaOutputLayer = dot(this.outputSum.transform(activatePrime), errorOutputLayer);  //
+  var errorOutputLayer = subtract(targetMatrix, this.outputResult);
+  var deltaOutputLayer = dot(this.outputSum.transform(activatePrime), errorOutputLayer);
   var hiddenOutputWeightsChanges = scalar(multiply(deltaOutputLayer, this.hiddenResult.transpose()), this.learningRate);
 
   // compute hidden layer changes
@@ -193,41 +204,31 @@ Mind.prototype.back = function(targetMatrix) {
   this.hiddenOutputWeights = add(this.hiddenOutputWeights, hiddenOutputWeightsChanges);
 };
 
+},{"htan":3,"htan-prime":2,"node-matrix":4,"samples":5,"sigmoid":7,"sigmoid-prime":6}],2:[function(require,module,exports){
+
 /**
- * Generate a random sample from the Guassian distribution.
- *
- * - Uses the Box–Muller transform.
+ * Expose `htanPrime`.
  */
 
-function sample() {
-  return Math.sqrt(-2 * Math.log(Math.random())) * Math.cos(2 * Math.PI * Math.random());
-}
+module.exports = htanPrime;
 
 /**
- * Sigmoid function.
- *
- * - Non-linear, continuous, and differentiable logistic function.
- * - Useful for inputs between 0 and 1
- * - Serves as the activation function
+ * Derivative of the hyperbolic tangent function.
  *
  * @param {Number} z
  */
 
-function sigmoid(z) {
-  return 1 / (1 + Math.exp(-z));
+function htanPrime(z) {
+  return 1 - Math.pow((Math.exp(2 * z) - 1) / (Math.exp(2 * z) + 1), 2);
 }
+
+},{}],3:[function(require,module,exports){
 
 /**
- * Derivative of the sigmoid function.
- *
- * - Used to calculate the deltas.
- *
- * @param {Number} z
+ * Expose `htan`.
  */
 
-function sigmoidPrime(z) {
-  return Math.exp(-z) / Math.pow(1 + Math.exp(-z), 2);
-}
+module.exports = htan;
 
 /**
  * Hyperbolic tangent function.
@@ -235,19 +236,10 @@ function sigmoidPrime(z) {
  * - Useful for inputs between -1 and 1
  */
 
-function tanh(z) {
-  return (Math.exp(2 * z) - 1) / (Math.exp(2 * z) + 1)
+function htan(z) {
+  return (Math.exp(2 * z) - 1) / (Math.exp(2 * z) + 1);
 }
-
-/**
- * Derivative of the hyperbolic tangent function.
- */
-
-function tanhPrime(z) {
-  return 1 - Math.pow((Math.exp(2 * z) - 1) / (Math.exp(2 * z) + 1), 2)
-}
-
-},{"node-matrix":2}],2:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 
 /**
  * Expose `Matrix`.
@@ -478,6 +470,64 @@ Matrix.prototype.transform = function(fn) {
 
   return result;
 };
+
+},{}],5:[function(require,module,exports){
+
+/**
+ * Expose `sample`.
+ */
+
+module.exports = sample;
+
+/**
+ * Generate a random sample from the Guassian distribution.
+ *
+ * 	- Uses the Box–Muller transform: https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
+ */
+
+function sample() {
+  return Math.sqrt(-2 * Math.log(Math.random())) * Math.cos(2 * Math.PI * Math.random());
+}
+
+},{}],6:[function(require,module,exports){
+
+/**
+ * Expose `sigmoidPrime`.
+ */
+
+module.exports = sigmoidPrime;
+
+/**
+ * Derivative of the sigmoid function.
+ *
+ * - Used to calculate the deltas in neural networks.
+ *
+ * @param {Number} z
+ */
+
+function sigmoidPrime(z) {
+  return Math.exp(-z) / Math.pow(1 + Math.exp(-z), 2);
+}
+
+},{}],7:[function(require,module,exports){
+
+/**
+ * Expose `sigmoid`.
+ */
+
+module.exports = sigmoid;
+
+/**
+ * sigmoid.
+ *
+ * 	- Non-linear, continuous, and differentiable logistic function.
+ *
+ * @param {Number} z
+ */
+
+function sigmoid(z) {
+  return 1 / (1 + Math.exp(-z));
+}
 
 },{}]},{},[1])(1)
 });
