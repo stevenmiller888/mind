@@ -1,4 +1,8 @@
 
+0.0.5 / July 20, 2015
+
+  * Exposed iterations at the API level to improve flexibility
+
 0.0.4 / July 13, 2015
 
   * Added option to use hyperbolic tangent as activation function

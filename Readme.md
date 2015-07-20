@@ -71,6 +71,7 @@ The available options are:
 * `learningRate`: how quickly the network should learn.
 * `hiddenNeurons`: how many neurons are in the hidden layer.
 * `activator`: which activation function to use, `sigmoid` or `tanh`.
+* `iterations`: the number of iterations to run.
 
 #### .learn()
 
