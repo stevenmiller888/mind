@@ -3,38 +3,44 @@
  * Dependencies.
  */
 
+var character = require('./character');
 var Mind = require('../..');
 
+/**
+ * Letters.
+ *
+ * - Imagine these # and . represent black and white pixels.
+ */
 
-var letterA = [
-  0, 0, 1, 0, 0,
-  0, 1, 0, 1, 0,
-  1, 0, 0, 0, 1,
-  1, 1, 1, 1, 1,
-  1, 0, 0, 0, 1,
-  1, 0, 0, 0, 1,
-  1, 0, 0, 0, 1
-];
+var a = character(
+  '.####.' +
+  '#....#' +
+  '#....#' +
+  '######' +
+  '#....#' +
+  '#....#' +
+  '#....#'
+);
 
-var letterB = [
-  1, 1, 1, 1, 0,
-  1, 0, 0, 0, 1,
-  1, 0, 0, 0, 1,
-  1, 1, 1, 1, 0,
-  1, 0, 0, 0, 1,
-  1, 0, 0, 0, 1,
-  1, 1, 1, 1, 0
-];
+var b = character(
+  '#####.' +
+  '#....#' +
+  '#....#' +
+  '#####.' +
+  '#....#' +
+  '#....#' +
+  '#####.'
+);
 
-var letterC = [
-  1, 1, 1, 1, 1,
-  1, 0, 0, 0, 0,
-  1, 0, 0, 0, 0,
-  1, 0, 0, 0, 0,
-  1, 0, 0, 0, 0,
-  1, 0, 0, 0, 0,
-  1, 1, 1, 1, 1
-];
+var c = character(
+  '######' +
+  '#.....' +
+  '#.....' +
+  '#.....' +
+  '#.....' +
+  '#.....' +
+  '######'
+);
 
 /**
  * Learn the letters A through C.
@@ -42,23 +48,23 @@ var letterC = [
 
 var mind = Mind()
   .learn([
-    { input: letterA, output: [ 0.1 ] },
-    { input: letterB, output: [ 0.2 ] },
-    { input: letterC, output: [ 0.3 ] }
+    { input: a, output: [ 0.1 ] },
+    { input: b, output: [ 0.2 ] },
+    { input: c, output: [ 0.3 ] }
   ]);
 
 /**
  * Predict the letter C, even with a pixel off.
  */
 
-var result = mind.predict([
-  1, 1, 1, 1, 1,
-  1, 0, 0, 0, 0,
-  1, 0, 0, 0, 0,
-  1, 0, 0, 0, 0,
-  1, 0, 0, 0, 0,
-  1, 1, 0, 0, 0,
-  1, 1, 1, 1, 1
-]);
+var result = mind.predict(character(
+  '######' +
+  '#.....' +
+  '#.....' +
+  '#.....' +
+  '#.....' +
+  '##....' +
+  '######'
+));
 
 console.log(result); // ~ 0.3

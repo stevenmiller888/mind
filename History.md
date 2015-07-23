@@ -1,4 +1,8 @@
 
+0.0.9 / July 23, 2015
+
+  * Updated readme and character recognition example
+
 0.0.8 / July 22, 2015
 
   * Cleaned up learn function

@@ -24,37 +24,39 @@ var mind = Mind();
 
 /**
  * Letters.
+ *
+ * - Imagine these # and . represent black and white pixels.
  */
 
-var letterA = [
-  0, 0, 1, 0, 0,
-  0, 1, 0, 1, 0,
-  1, 0, 0, 0, 1,
-  1, 1, 1, 1, 1,
-  1, 0, 0, 0, 1,
-  1, 0, 0, 0, 1,
-  1, 0, 0, 0, 1
-];
+var a = character(
+  '.####.' +
+  '#....#' +
+  '#....#' +
+  '######' +
+  '#....#' +
+  '#....#' +
+  '#....#'
+);
 
-var letterB = [
-  1, 1, 1, 1, 0,
-  1, 0, 0, 0, 1,
-  1, 0, 0, 0, 1,
-  1, 1, 1, 1, 0,
-  1, 0, 0, 0, 1,
-  1, 0, 0, 0, 1,
-  1, 1, 1, 1, 0
-];
+var b = character(
+  '#####.' +
+  '#....#' +
+  '#....#' +
+  '#####.' +
+  '#....#' +
+  '#....#' +
+  '#####.'
+);
 
-var letterC = [
-  1, 1, 1, 1, 1,
-  1, 0, 0, 0, 0,
-  1, 0, 0, 0, 0,
-  1, 0, 0, 0, 0,
-  1, 0, 0, 0, 0,
-  1, 0, 0, 0, 0,
-  1, 1, 1, 1, 1
-];
+var c = character(
+  '######' +
+  '#.....' +
+  '#.....' +
+  '#.....' +
+  '#.....' +
+  '#.....' +
+  '######'
+);
 
 /**
  * Learn the letters A through C.
@@ -62,26 +64,42 @@ var letterC = [
 
 var mind = Mind()
   .learn([
-    { input: letterA, output: [ 0.1 ] },
-    { input: letterB, output: [ 0.2 ] },
-    { input: letterC, output: [ 0.3 ] }
+    { input: a, output: [ 0.1 ] },
+    { input: b, output: [ 0.2 ] },
+    { input: c, output: [ 0.3 ] }
   ]);
 
 /**
  * Predict the letter C, even with a pixel off.
  */
 
-var result = mind.predict([
-  1, 1, 1, 1, 1,
-  1, 0, 0, 0, 0,
-  1, 0, 0, 0, 0,
-  1, 0, 0, 0, 0,
-  1, 0, 0, 0, 0,
-  1, 1, 0, 0, 0,
-  1, 1, 1, 1, 1
-]);
+var result = mind.predict(character(
+  '######' +
+  '#.....' +
+  '#.....' +
+  '#.....' +
+  '#.....' +
+  '##....' +
+  '######'
+));
 
 console.log(result); // ~ 0.3
+
+/**
+ * Turn the # into 1s and . into 0s.
+ */
+
+function character(string) {
+  return string
+    .trim()
+    .split('')
+    .map(integer);
+
+  function integer(symbol) {
+    if ('#' === symbol) return 1;
+    if ('.' === symbol) return 0;
+  }
+};
 ```
 
 ## Plugins
