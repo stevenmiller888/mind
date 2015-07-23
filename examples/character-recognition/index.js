@@ -48,7 +48,7 @@ var mind = Mind()
   ]);
 
 /**
- * Predict the letter C, even with pixel off.
+ * Predict the letter C, even with a pixel off.
  */
 
 var result = mind.predict([
