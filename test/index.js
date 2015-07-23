@@ -25,9 +25,38 @@ describe('Mind()', function() {
     assert(mind instanceof Mind);
   });
 
-  it('should accept an options object', function() {
-    var mind = Mind({ hiddenNeurons: 2, learningRate: 0.7 });
+  it('should accept the number of hidden layer neurons as an option', function() {
+    var mind = Mind({ hiddenNeurons: 2 });
     assert(mind.hiddenNeurons === 2);
+  });
+
+  it('should accept the learning rate as an option', function() {
+    var mind = Mind({ learningRate: 0.7 });
     assert(mind.learningRate === 0.7);
+  });
+
+  it('should accept the number of learning iterations as an option', function() {
+    var mind = Mind({ iterations: 100000 });
+    assert(mind.iterations === 100000);
+  });
+
+  it('should accept the kind of activation function as an option', function() {
+    var mind = Mind({ activator: 'htan' });
+    assert(typeof mind.activate === 'function');
+  });
+
+  it('should initialize with an activation function by default', function() {
+    var mind = Mind();
+    assert(typeof mind.activate === 'function');
+  });
+
+  it('should initialize with the derivative of the activation function by default', function() {
+    var mind = Mind();
+    assert(typeof mind.activatePrime === 'function');
+  });
+
+  it('should accept a transformation function', function() {
+    var mind = Mind().use(function() {});
+    assert(typeof mind.transformer === 'function');
   });
 });

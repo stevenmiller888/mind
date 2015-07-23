@@ -22,14 +22,66 @@ A flexible neural network library for Node.js and the browser. Check out a live 
 var Mind = require('node-mind');
 var mind = Mind();
 
-mind.learn([
-  { input: [0, 0], output: [ 0 ] },
-  { input: [0, 1], output: [ 1 ] },
-  { input: [1, 0], output: [ 1 ] },
-  { input: [1, 1], output: [ 0 ] }
+/**
+ * Letters.
+ */
+
+var letterA = [
+  0, 0, 1, 0, 0,
+  0, 1, 0, 1, 0,
+  1, 0, 0, 0, 1,
+  1, 1, 1, 1, 1,
+  1, 0, 0, 0, 1,
+  1, 0, 0, 0, 1,
+  1, 0, 0, 0, 1
+];
+
+var letterB = [
+  1, 1, 1, 1, 0,
+  1, 0, 0, 0, 1,
+  1, 0, 0, 0, 1,
+  1, 1, 1, 1, 0,
+  1, 0, 0, 0, 1,
+  1, 0, 0, 0, 1,
+  1, 1, 1, 1, 0
+];
+
+var letterC = [
+  1, 1, 1, 1, 1,
+  1, 0, 0, 0, 0,
+  1, 0, 0, 0, 0,
+  1, 0, 0, 0, 0,
+  1, 0, 0, 0, 0,
+  1, 0, 0, 0, 0,
+  1, 1, 1, 1, 1
+];
+
+/**
+ * Learn the letters A through C.
+ */
+
+var mind = Mind()
+  .learn([
+    { input: letterA, output: [ 0.1 ] },
+    { input: letterB, output: [ 0.2 ] },
+    { input: letterC, output: [ 0.3 ] }
+  ]);
+
+/**
+ * Predict the letter C, even with pixel off.
+ */
+
+var result = mind.predict([
+  1, 1, 1, 1, 1,
+  1, 0, 0, 0, 0,
+  1, 0, 0, 0, 0,
+  1, 0, 0, 0, 0,
+  1, 0, 0, 0, 0,
+  1, 1, 0, 0, 0,
+  1, 1, 1, 1, 1
 ]);
 
-mind.predict([ 1, 0 ]); // ~ 1
+console.log(result); // ~ 0.3
 ```
 
 ## Plugins

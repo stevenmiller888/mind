@@ -1,4 +1,10 @@
 
+0.0.8 / July 22, 2015
+
+  * Cleaned up learn function
+  * Added more examples
+  * Updated readme with new example
+
 0.0.7 / July 20, 2015
 
   * Added link to demo in readme

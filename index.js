@@ -1,4 +1,4 @@
-!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.Mind=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.mind=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 
 /**
  * Dependencies.
@@ -43,13 +43,9 @@ function Mind(opts) {
   this.hiddenNeurons = opts.hiddenNeurons || 3;
   this.iterations = opts.iterations || 10000;
 
-  if (opts.activator === 'htan') {
-    this.activate = htan;
-    this.activatePrime = htanPrime;
-  } else {
-    this.activate = sigmoid;
-    this.activatePrime = sigmoidPrime;
-  }
+  opts.activator === 'htan'
+    ? (this.activate = htan, this.activatePrime = htanPrime)
+    : (this.activate = sigmoid, this.activatePrime = sigmoidPrime);
 }
 
 /**
@@ -60,72 +56,81 @@ function Mind(opts) {
  */
 
 Mind.prototype.use = function(fn) {
-  this.transform = fn;
+  this.transformer = fn;
   return this;
 };
 
 /**
- * Learn from examples.
+ * Learn.
  *
- * Analyze the training examples to learn the relationship between the inputs
- * and their corresponding outputs.
+ * This function is responsible for the following, in order:
+ *
+ * 	(1) Processing the examples by applying a transformation function, if necessary
+ * 	(2) Turning them into matrices so we can use vector notation
+ * 	(3) Setting up the weights between layers with random values and appropriate sizes
+ * 	(4) Forward propagating the input (to generate a prediction)
+ * 	(5) Back propagating the output (to adjust the weights)
+ *
+ * These five steps allows our network to learn the relationship
+ * between the inputs and the outputs.
  *
  * @param {Array} examples
  * @return {Object} this
  */
 
 Mind.prototype.learn = function(examples) {
-  var transform = this.transform;
+  var transformer = this.transformer;
 
-  // create the input/output matrices
-  var input = [];
-  var output = [];
+  // process the examples
+  var output = [], input = [];
   examples.forEach(function(example) {
-    var currentInput = example.input;
-    var currentOutput = example.output;
-
-    if (transform) {
-      currentInput = currentInput.map(transform.before);
-      currentOutput = currentOutput.map(transform.before);
+    if (transformer) {
+      output.push(example.output.map(transformer.before));
+      input.push(example.input.map(transformer.before));
+    } else {
+      output.push(example.output);
+      input.push(example.input);
     }
-
-    input.push(currentInput);
-    output.push(currentOutput);
   });
 
-  var inputMatrix = Matrix(input);
+  // create the output matrix, create the input matrix
   var outputMatrix = Matrix(output);
+  var inputMatrix = Matrix(input);
 
-  // setup the neurons
-  var outputNeurons = examples[0].output.length;
-  var inputNeurons = examples[0].input.length;
-  var hiddenNeurons = this.hiddenNeurons;
+  // setup the weights for the hidden layer to the output layer
+  this.hiddenOutputWeights = Matrix({
+    columns: examples[0].output.length,
+    rows: this.hiddenNeurons,
+    values: sample
+  });
 
-  // setup the weights
-  this.inputHiddenWeights = Matrix({ rows: inputNeurons, columns: hiddenNeurons, values: sample });
-  this.hiddenOutputWeights = Matrix({ rows: hiddenNeurons, columns: outputNeurons, values: sample });
+  // setup the weights for the input layer to the hidden layer
+  this.inputHiddenWeights = Matrix({
+    columns: this.hiddenNeurons,
+    rows: examples[0].input.length,
+    values: sample
+  });
 
-  // number of iterations
+  this.inputMatrix = inputMatrix;
+
+  // forward propagate the input, back propagate the output
   for (var i = 0; i < this.iterations; i++) {
-    // forward propagate
     this.forward(inputMatrix);
-
-    // back propagate
     this.back(outputMatrix);
   }
 
+  // allow chaining
   return this;
 };
 
 /**
- * Feedforward input through network.
+ * Forward propagate the input.
  *
  * @param {Object} inputMatrix
  * @return {Object} this
  */
 
 Mind.prototype.forward = function(inputMatrix) {
-  this.inputMatrix = inputMatrix;
   var activate = this.activate;
 
   // compute hidden layer sum
@@ -140,6 +145,34 @@ Mind.prototype.forward = function(inputMatrix) {
   // apply activation function to output layer sum
   this.outputResult = this.outputSum.transform(activate);
 
+  // allow chaining
+  return this;
+};
+
+/**
+ * Back propagate the output.
+ *
+ * @param {Object} outputMatrix
+ */
+
+Mind.prototype.back = function(outputMatrix) {
+  var activatePrime = this.activatePrime;
+
+  // compute output layer changes
+  var errorOutputLayer = subtract(outputMatrix, this.outputResult);
+  var deltaOutputLayer = dot(this.outputSum.transform(activatePrime), errorOutputLayer);
+  var hiddenOutputWeightsChanges = scalar(multiply(deltaOutputLayer, this.hiddenResult.transpose()), this.learningRate);
+
+  // compute hidden layer changes
+  var multiplied = multiply(this.hiddenOutputWeights.transpose(), deltaOutputLayer);
+  var deltaHiddenLayer = dot(multiplied, this.hiddenSum.transform(activatePrime));
+  var inputHiddenWeightsChanges = scalar(multiply(deltaHiddenLayer, this.inputMatrix.transpose()), this.learningRate);
+
+  // compute the new weights
+  this.inputHiddenWeights = add(this.inputHiddenWeights, inputHiddenWeightsChanges);
+  this.hiddenOutputWeights = add(this.hiddenOutputWeights, hiddenOutputWeightsChanges);
+  
+  // allow chaining
   return this;
 };
 
@@ -150,12 +183,12 @@ Mind.prototype.forward = function(inputMatrix) {
  */
 
 Mind.prototype.predict = function(input) {
-  var transform = this.transform;
+  var transformer = this.transformer;
 
   // apply `before` transform
-  if (transform) {
+  if (transformer) {
     for (var i = 0; i < input.length; i++) {
-      input[i] = transform.before(input[i]);
+      input[i] = transformer.before(input[i]);
     }
   }
 
@@ -169,39 +202,13 @@ Mind.prototype.predict = function(input) {
   var prediction = this.outputResult;
 
   // apply `after` transform
-  if (transform) {
+  if (transformer) {
     for (var j = 0; j < prediction.numRows; j++) {
-      prediction[j] = transform.after(prediction[j]);
+      prediction[j] = transformer.after(prediction[j]);
     }
   }
 
   return prediction[0];
-};
-
-/**
- * Backpropagate errors through the network.
- *
- * - Determines how to change the network weights in order to minimize the cost function
- *
- * @param {Object} target
- */
-
-Mind.prototype.back = function(targetMatrix) {
-  var activatePrime = this.activatePrime;
-
-  // compute output layer changes
-  var errorOutputLayer = subtract(targetMatrix, this.outputResult);
-  var deltaOutputLayer = dot(this.outputSum.transform(activatePrime), errorOutputLayer);
-  var hiddenOutputWeightsChanges = scalar(multiply(deltaOutputLayer, this.hiddenResult.transpose()), this.learningRate);
-
-  // compute hidden layer changes
-  var multiplied = multiply(this.hiddenOutputWeights.transpose(), deltaOutputLayer);
-  var deltaHiddenLayer = dot(multiplied, this.hiddenSum.transform(activatePrime));
-  var inputHiddenWeightsChanges = scalar(multiply(deltaHiddenLayer, this.inputMatrix.transpose()), this.learningRate);
-
-  // compute the new weights
-  this.inputHiddenWeights = add(this.inputHiddenWeights, inputHiddenWeightsChanges);
-  this.hiddenOutputWeights = add(this.hiddenOutputWeights, hiddenOutputWeightsChanges);
 };
 
 },{"htan":3,"htan-prime":2,"node-matrix":4,"samples":5,"sigmoid":7,"sigmoid-prime":6}],2:[function(require,module,exports){

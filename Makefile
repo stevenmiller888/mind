@@ -11,14 +11,14 @@ MOCHA := $(BIN)/mocha
 # Default.
 #
 
-default: node_modules index.js test-style
+default: index.js
 
 #
 # Browserify.
 #
-	
+
 index.js: node_modules $(js)
-	@browserify -s Mind lib/index.js > index.js
+	@browserify -s node-mind lib/index.js > index.js
 
 #
 # Test.
@@ -26,12 +26,12 @@ index.js: node_modules $(js)
 
 test: node_modules
 	@$(MOCHA) test --reporter spec
-		
+
 #
 # Test style.
 #
 
-test-style:
+test-style: node_modules
 	@$(ESLINT) .
 
 #
