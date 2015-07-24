@@ -1,4 +1,4 @@
-!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.mind=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var n;"undefined"!=typeof window?n=window:"undefined"!=typeof global?n=global:"undefined"!=typeof self&&(n=self),n.nodeMind=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 
 /**
  * Dependencies.
@@ -43,22 +43,14 @@ function Mind(opts) {
   this.hiddenNeurons = opts.hiddenNeurons || 3;
   this.iterations = opts.iterations || 10000;
 
-  opts.activator === 'htan'
-    ? (this.activate = htan, this.activatePrime = htanPrime)
-    : (this.activate = sigmoid, this.activatePrime = sigmoidPrime);
+  if (opts.activator === 'htan') {
+    this.activate = htan
+    this.activatePrime = htanPrime;
+  } else {
+    this.activate = sigmoid;
+    this.activatePrime = sigmoidPrime;
+  }
 }
-
-/**
- * Use a transformation function.
- *
- * @param {Function} fn
- * @return {Object} this
- */
-
-Mind.prototype.use = function(fn) {
-  this.transformer = fn;
-  return this;
-};
 
 /**
  * Learn.
@@ -82,7 +74,8 @@ Mind.prototype.learn = function(examples) {
   var transformer = this.transformer;
 
   // process the examples
-  var output = [], input = [];
+  var output = [];
+  var input = [];
   examples.forEach(function(example) {
     if (transformer) {
       output.push(example.output.map(transformer.before));
@@ -113,7 +106,7 @@ Mind.prototype.learn = function(examples) {
 
   this.inputMatrix = inputMatrix;
 
-  // forward propagate the input, back propagate the output
+  // forward propagate, back propagate
   for (var i = 0; i < this.iterations; i++) {
     this.forward(inputMatrix);
     this.back(outputMatrix);
@@ -124,7 +117,7 @@ Mind.prototype.learn = function(examples) {
 };
 
 /**
- * Forward propagate the input.
+ * Forward propagate.
  *
  * @param {Object} inputMatrix
  * @return {Object} this
@@ -150,7 +143,7 @@ Mind.prototype.forward = function(inputMatrix) {
 };
 
 /**
- * Back propagate the output.
+ * Back propagate.
  *
  * @param {Object} outputMatrix
  */
@@ -171,13 +164,16 @@ Mind.prototype.back = function(outputMatrix) {
   // compute the new weights
   this.inputHiddenWeights = add(this.inputHiddenWeights, inputHiddenWeightsChanges);
   this.hiddenOutputWeights = add(this.hiddenOutputWeights, hiddenOutputWeightsChanges);
-  
+
   // allow chaining
   return this;
 };
 
 /**
- * Make a prediction.
+ * Predict.
+ *
+ * 	- This forward propagates the input data through the trained network
+ * 	and returns the predicted output.
  *
  * @param {Array} input
  */
@@ -209,6 +205,55 @@ Mind.prototype.predict = function(input) {
   }
 
   return prediction[0];
+};
+
+/**
+ * Upload.
+ *
+ * 	- This gives a hook for the user to plug-in the weights from a
+ * 	previously trained network.
+ *
+ * @param {Object} obj
+ * @return {Object} this
+ */
+
+Mind.prototype.upload = function(obj) {
+  this.inputHiddenWeights = obj.inputHiddenWeights;
+  this.hiddenOutputWeights = obj.hiddenOutputWeights;
+
+  return this;
+};
+
+/**
+ * Download.
+ *
+ * 	- This gives a hook for the user to download the
+ * 	network's weights.
+ *
+ * @param {Object} obj
+ * @return {Object} this
+ */
+
+Mind.prototype.download = function() {
+  return {
+    inputHiddenWeights: this.inputHiddenWeights,
+    hiddenOutputWeights: this.hiddenOutputWeights
+  };
+};
+
+/**
+ * Transform.
+ *
+ * 	- This gives a hook for the user to transform the dataset before and
+ * 	after training.
+ *
+ * @param {Object} obj
+ * @return {Object} this
+ */
+
+Mind.prototype.transform = function(obj) {
+  this.transformer = obj;
+  return this;
 };
 
 },{"htan":3,"htan-prime":2,"node-matrix":4,"samples":5,"sigmoid":7,"sigmoid-prime":6}],2:[function(require,module,exports){
@@ -308,10 +353,6 @@ function Matrix(opts) {
  */
 
 Matrix.add = function(m1, m2) {
-  if (!(m1 instanceof Matrix) || !(m2 instanceof Matrix)) {
-    throw new Error('You must supply two valid matrices');
-  }
-
   // Number of rows and columns in first must equal number of rows and columns in second
   if (m1.numRows !== m2.numRows || m1.numCols !== m2.numCols) {
     throw new Error('You can only add matrices with equal dimensions');
@@ -337,10 +378,6 @@ Matrix.add = function(m1, m2) {
  */
 
 Matrix.subtract = function(m1, m2) {
-  if (!(m1 instanceof Matrix) || !(m2 instanceof Matrix)) {
-    throw new Error('You must supply two valid matrices');
-  }
-
   // Number of rows and number of columns in first must equal number of rows and number of columns in second
   if (m1.numRows !== m2.numRows || m1.numCols !== m2.numCols) {
     throw new Error('You can only subtract matrices with equal dimensions');
@@ -366,10 +403,6 @@ Matrix.subtract = function(m1, m2) {
  */
 
 Matrix.multiply = function(m1, m2) {
-  if (!(m1 instanceof Matrix) || !(m2 instanceof Matrix)) {
-    throw new Error('You must supply two valid matrices');
-  }
-
   var result = Matrix({ rows: m2.numRows, columns: m1.numCols });
 
   for (var i = 0; i < m2.numRows; i++) {
@@ -398,10 +431,6 @@ Matrix.multiply = function(m1, m2) {
  */
 
 Matrix.multiplyScalar = function(m1, num) {
-  if (!(m1 instanceof Matrix) || !(typeof num === 'number')) {
-    throw new Error('You must supply a valid matrix and a number');
-  }
-
   var result = Matrix({ rows: m1.numRows, columns: m1.numCols });
 
   for (var i = 0; i < m1.numRows; i++) {
@@ -422,10 +451,6 @@ Matrix.multiplyScalar = function(m1, num) {
  */
 
 Matrix.multiplyElements = function(m1, m2) {
-  if (!(m1 instanceof Matrix) || !(m2 instanceof Matrix)) {
-    throw new Error('You must supply two valid matrices');
-  }
-
   var result = Matrix({ rows: m1.numRows, columns: m1.numCols })
 
   for (var i = 0; i < m1.numRows; i++) {

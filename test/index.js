@@ -55,8 +55,20 @@ describe('Mind()', function() {
     assert(typeof mind.activatePrime === 'function');
   });
 
-  it('should accept a transformation function', function() {
-    var mind = Mind().use(function() {});
-    assert(typeof mind.transformer === 'function');
+  it('should download inputHiddenWeights and hiddenOutputWeights', function() {
+    var mind = Mind().learn([{ input: [], output: [] }]).download();
+    assert(mind.inputHiddenWeights, []);
+    assert(mind.hiddenOutputWeights, []);
+  });
+
+  it('should upload inputHiddenWeights and hiddenOutputWeights', function() {
+    var mind = Mind().upload({ inputHiddenWeights: [], hiddenOutputWeights: [] });
+    assert.deepEqual(mind.inputHiddenWeights, []);
+    assert.deepEqual(mind.hiddenOutputWeights, []);
+  });
+
+  it('should accept a transformation object', function() {
+    var mind = Mind().transform({});
+    assert.deepEqual(mind.transformer, {});
   });
 });

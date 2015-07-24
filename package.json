@@ -2,7 +2,7 @@
   "name": "node-mind",
   "description": "A flexible neural network library",
   "author": "Steven Miller",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/stevenmiller888/mind"
@@ -23,7 +23,7 @@
   "dependencies": {
     "htan": "0.0.1",
     "htan-prime": "0.0.1",
-    "node-matrix": "0.1.0",
+    "node-matrix": "0.1.1",
     "samples": "0.0.1",
     "sigmoid": "0.0.1",
     "sigmoid-prime": "0.0.1"
@@ -31,6 +31,7 @@
   "devDependencies": {
     "eslint": "^0.22.1",
     "mind-currency": "0.0.1",
+    "mind-xor": "0.0.1",
     "mocha": "2.x"
   }
 }

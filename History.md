@@ -1,4 +1,10 @@
 
+0.1.0 / July 24, 2015
+
+  * Added ability to download/upload the network weights
+  * Added download and upload examples
+  * Updated readme with plugin explanation
+
 0.0.9 / July 23, 2015
 
   * Updated readme and character recognition example

@@ -10,7 +10,7 @@ module.exports = function(string) {
     .map(integer);
 
   function integer(symbol) {
-    if ('#' === symbol) return 1;
-    if ('.' === symbol) return 0;
+    if (symbol === '#') return 1;
+    if (symbol === '.') return 0;
   }
 };

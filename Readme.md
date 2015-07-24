@@ -9,8 +9,9 @@ A flexible neural network library for Node.js and the browser. Check out a live 
 ## Features
 
 - Vectorized - uses a matrix implementation to efficiently process training data
-- Pluggable - apply transforms so you can pass in diverse datasets
+- Transformable - apply transforms so you can pass in diverse datasets
 - Configurable - allows you to customize the network topology
+- Pluggable - download/upload minds that have already learned
 
 ## Installation
 
@@ -104,7 +105,50 @@ function character(string) {
 
 ## Plugins
 
-Use transformation plugins so you can perform analysis on any dataset. A transform is just an object with a `before` function and an `after` function, which will be applied to each data point before and after analysis. Here's an example currency transform:
+Use plugins created by the Mind community to configure pre-trained networks that can go straight to making predictions.
+
+Here's a cool example of the way you could use a hypothetical `mind-ocr` plugin:
+
+```js
+var Mind = require('node-mind');
+var ocr = require('mind-ocr');
+
+var mind = Mind()
+  .upload(ocr)
+  .predict(
+    '.####.' +
+    '#....#' +
+    '#....#' +
+    '######' +
+    '#....#' +
+    '#....#' +
+    '#....#'
+  );
+```
+
+To create a plugin, simply call `download` on your trained mind:
+
+```js
+var Mind = require('node-mind');
+
+var mind = Mind()
+  .learn([
+    { input: [0, 0], output: [ 0 ] },
+    { input: [0, 1], output: [ 1 ] },
+    { input: [1, 0], output: [ 1 ] },
+    { input: [1, 1], output: [ 0 ] }
+  ]);
+
+var xor = mind.download();
+```
+
+Here's a list of available plugins:
+
+- [xor](https://github.com/stevenmiller888/mind-xor)
+
+## Transforms
+
+Use transforms so you can perform analysis on any dataset. A transform is just an object with a `before` function and an `after` function, which will be applied to each data point before and after analysis. Here's an example currency transform:
 
 ```js
 var currency = {
@@ -117,18 +161,24 @@ var currency = {
 };
 ```
 
-This lets you to pass it in the following training data:
+You can apply this transform to the dataset in the following way:
 
 ```js
-[
-  { input: ["$1500", "$870"], output: [ "$1010" ] },
-  { input: ["$1400", "$700"], output: [ "$1140" ] },
-  { input: ["$2000", "$1100"], output: [ "$1432" ] },
-  { input: ["$1800", "$1000"], output: [ "$910" ] }
-]
+var currency = require('mind-currency');
+var Mind = require('node-mind');
+
+var mind = Mind()
+  .transform(currency)
+  .learn([
+    { input: ["$1500", "$870"], output: [ "$1010" ] },
+    { input: ["$1400", "$700"], output: [ "$1140" ] },
+    { input: ["$2000", "$1100"], output: [ "$1432" ] },
+    { input: ["$1800", "$1000"], output: [ "$910" ] }
+  ])
+  .predict([ "$3288", "$170" ]);
 ```
 
-Here's a list of available plugins:
+Here's a list of available transforms:
 
 - [currency](https://github.com/stevenmiller888/mind-currency)
 
@@ -145,23 +195,39 @@ The available options are:
 
 #### .learn()
 
-Learn from training data, which should look something like the following:
+Learn from training data:
 
 ```js
-[
+mind.learn([
   { input: [0, 0], output: [ 0 ] },
   { input: [0, 1], output: [ 1 ] },
   { input: [1, 0], output: [ 1 ] },
   { input: [1, 1], output: [ 0 ] }
-]
+]);
 ```
 
 #### .predict()
 
-Make a new prediction after training is finished. You can pass an array:
+Make a new prediction:
 
+```js
+mind.predict([0, 1]);
 ```
-[0, 0]
+
+#### .download()
+
+Download the mind:
+
+```js
+var xor = mind.download();
+```
+
+#### .upload()
+
+Upload a mind:
+
+```js
+mind.upload(xor);
 ```
 
 ## License
