@@ -103,6 +103,8 @@ function character(string) {
 };
 ```
 
+You can use Mind in the browser by requiring it with Duo or Browserify. Or you can simply use the prebuilt root `index.js` file directly, which will expose `Mind` on the `window` object.
+
 ## Plugins
 
 Use plugins created by the Mind community to configure pre-trained networks that can go straight to making predictions.

@@ -18,7 +18,7 @@ default: index.js
 #
 
 index.js: node_modules $(js)
-	@browserify -s node-mind lib/index.js > index.js
+	@browserify -s Mind lib/index.js > index.js
 
 #
 # Test.
