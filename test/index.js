@@ -3,8 +3,9 @@
  * Dependencies.
  */
 
-var Mind = require('..');
+var Matrix = require('node-matrix');
 var assert = require('assert');
+var Mind = require('..');
 
 /**
  * Tests.
@@ -70,5 +71,45 @@ describe('Mind()', function() {
   it('should accept a transformation object', function() {
     var mind = Mind().transform({});
     assert.deepEqual(mind.transformer, {});
+  });
+});
+
+describe('Mind#learn()', function() {
+  it('should create a weights matrix for the hidden layer to the output layer', function() {
+    var mind = Mind()
+      .learn([
+        { input: [0, 0], output: [ 0 ] },
+        { input: [0, 1], output: [ 1 ] },
+        { input: [1, 0], output: [ 1 ] },
+        { input: [1, 1], output: [ 0 ] }
+      ]);
+
+    assert(mind.hiddenOutputWeights instanceof Matrix);
+  });
+
+  it('should create a weights matrix for the input layer to the hidden layer', function() {
+    var mind = Mind()
+      .learn([
+        { input: [0, 0], output: [ 0 ] },
+        { input: [0, 1], output: [ 1 ] },
+        { input: [1, 0], output: [ 1 ] },
+        { input: [1, 1], output: [ 0 ] }
+      ]);
+
+    assert(mind.inputHiddenWeights instanceof Matrix);
+  });
+});
+
+describe('Mind#predict()', function() {
+  it('should forward propagate the array argument and return the output', function() {
+    var mind = Mind()
+      .learn([
+        { input: [0, 0], output: [ 0 ] },
+        { input: [0, 1], output: [ 1 ] },
+        { input: [1, 0], output: [ 1 ] },
+        { input: [1, 1], output: [ 0 ] }
+      ]);
+
+    assert(mind.predict([0, 0]) instanceof Array);
   });
 });
