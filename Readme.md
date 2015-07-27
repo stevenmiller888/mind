@@ -232,6 +232,16 @@ Upload a mind:
 mind.upload(xor);
 ```
 
+## Note
+
+This is a very simple library and there are far more sophisticated neural network libraries out there. Why did I build Mind then? Because I love figuring out how things work and sometimes you just need to build shit in order to understand how they work. Also, I wanted to write a library with clear, readable code that wouldn't scare newcomers away from the wonderful world of machine learning :)
+
+If you're interested in learning more about neural networks, you'll definitely want to check out these fantastic libraries:
+
+- [convnetjs](https://github.com/karpathy/convnetjs)
+- [synaptic](https://github.com/cazala/synaptic)
+- [brain](https://github.com/harthur/brain)
+
 ## License
 
 [MIT](https://tldrlegal.com/license/mit-license)
