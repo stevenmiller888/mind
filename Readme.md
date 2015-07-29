@@ -21,7 +21,6 @@ A flexible neural network library for Node.js and the browser. Check out a live 
 
 ```js
 var Mind = require('node-mind');
-var mind = Mind();
 
 /**
  * Letters.
