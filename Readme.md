@@ -30,33 +30,33 @@ var mind = Mind();
  */
 
 var a = character(
-  '.####.' +
-  '#....#' +
-  '#....#' +
-  '######' +
-  '#....#' +
-  '#....#' +
-  '#....#'
+  '.#####.' +
+  '#.....#' +
+  '#.....#' +
+  '#######' +
+  '#.....#' +
+  '#.....#' +
+  '#.....#'
 );
 
 var b = character(
-  '#####.' +
-  '#....#' +
-  '#....#' +
-  '#####.' +
-  '#....#' +
-  '#....#' +
-  '#####.'
+  '######.' +
+  '#.....#' +
+  '#.....#' +
+  '######.' +
+  '#.....#' +
+  '#.....#' +
+  '######.'
 );
 
 var c = character(
-  '######' +
-  '#.....' +
-  '#.....' +
-  '#.....' +
-  '#.....' +
-  '#.....' +
-  '######'
+  '#######' +
+  '#......' +
+  '#......' +
+  '#......' +
+  '#......' +
+  '#......' +
+  '#######'
 );
 
 /**
@@ -65,9 +65,9 @@ var c = character(
 
 var mind = Mind()
   .learn([
-    { input: a, output: [ 0.1 ] },
-    { input: b, output: [ 0.2 ] },
-    { input: c, output: [ 0.3 ] }
+    { input: a, output: map('a') },
+    { input: b, output: map('b') },
+    { input: c, output: map('c') }
   ]);
 
 /**
@@ -75,13 +75,13 @@ var mind = Mind()
  */
 
 var result = mind.predict(character(
-  '######' +
-  '#.....' +
-  '#.....' +
-  '#.....' +
-  '#.....' +
-  '##....' +
-  '######'
+  '#######' +
+  '#......' +
+  '#......' +
+  '#......' +
+  '#......' +
+  '##.....' +
+  '#######'
 ));
 
 console.log(result); // ~ 0.3
@@ -100,7 +100,18 @@ function character(string) {
     if ('#' === symbol) return 1;
     if ('.' === symbol) return 0;
   }
-};
+}
+
+/**
+ * Map letter to a number.
+ */
+
+function map(letter) {
+  if (letter === 'a') return [ 0.1 ];
+  if (letter === 'b') return [ 0.3 ];
+  if (letter === 'c') return [ 0.5 ];
+  return 0;
+}
 ```
 
 You can use Mind in the browser by requiring it with Duo or Browserify. Or you can simply use the prebuilt root `index.js` file directly, which will expose `Mind` on the `window` object.
@@ -118,13 +129,13 @@ var ocr = require('mind-ocr');
 var mind = Mind()
   .upload(ocr)
   .predict(
-    '.####.' +
-    '#....#' +
-    '#....#' +
-    '######' +
-    '#....#' +
-    '#....#' +
-    '#....#'
+    '.#####.' +
+    '#.....#' +
+    '#.....#' +
+    '#######' +
+    '#.....#' +
+    '#.....#' +
+    '#.....#'
   );
 ```
 
