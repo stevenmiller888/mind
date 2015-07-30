@@ -16,6 +16,8 @@ A flexible neural network library for Node.js and the browser. Check out a live 
 
     $ npm install node-mind
 
+You can use Mind in the browser by requiring it with Duo or Browserify. Or you can simply use the prebuilt root `index.js` file directly, which will expose `Mind` on the `window` object.
+
 ## Usage
 
 ```js
@@ -111,8 +113,6 @@ function map(letter) {
   return 0;
 }
 ```
-
-You can use Mind in the browser by requiring it with Duo or Browserify. Or you can simply use the prebuilt root `index.js` file directly, which will expose `Mind` on the `window` object.
 
 ## Plugins
 
