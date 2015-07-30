@@ -27,8 +27,8 @@ describe('Mind()', function() {
   });
 
   it('should accept the number of hidden layer neurons as an option', function() {
-    var mind = Mind({ hiddenNeurons: 2 });
-    assert(mind.hiddenNeurons === 2);
+    var mind = Mind({ hiddenUnits: 2 });
+    assert(mind.hiddenUnits === 2);
   });
 
   it('should accept the learning rate as an option', function() {
