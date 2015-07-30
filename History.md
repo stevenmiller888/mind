@@ -1,4 +1,8 @@
 
+0.1.1 / July 29, 2015
+
+  * Simplified code
+
 0.1.0 / July 24, 2015
 
   * Added ability to download/upload the network weights

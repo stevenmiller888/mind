@@ -56,21 +56,16 @@ describe('Mind()', function() {
     assert(typeof mind.activatePrime === 'function');
   });
 
-  it('should download inputHiddenWeights and hiddenOutputWeights', function() {
-    var mind = Mind().learn([{ input: [], output: [] }]).download();
-    assert(mind.inputHiddenWeights, []);
-    assert(mind.hiddenOutputWeights, []);
+  it('should download the weights', function() {
+    var plugin = Mind().learn([{ input: [], output: [] }]).download();
+    assert(plugin.inputHidden, []);
+    assert(plugin.hiddenOutput, []);
   });
 
-  it('should upload inputHiddenWeights and hiddenOutputWeights', function() {
-    var mind = Mind().upload({ inputHiddenWeights: [], hiddenOutputWeights: [] });
-    assert.deepEqual(mind.inputHiddenWeights, []);
-    assert.deepEqual(mind.hiddenOutputWeights, []);
-  });
-
-  it('should accept a transformation object', function() {
-    var mind = Mind().transform({});
-    assert.deepEqual(mind.transformer, {});
+  it('should upload the weights', function() {
+    var mind = Mind().upload({ inputHidden: [], hiddenOutput: [] });
+    assert.deepEqual(mind.weights.inputHidden, []);
+    assert.deepEqual(mind.weights.hiddenOutput, []);
   });
 });
 
@@ -84,7 +79,7 @@ describe('Mind#learn()', function() {
         { input: [1, 1], output: [ 0 ] }
       ]);
 
-    assert(mind.hiddenOutputWeights instanceof Matrix);
+    assert(mind.weights.hiddenOutput instanceof Matrix);
   });
 
   it('should create a weights matrix for the input layer to the hidden layer', function() {
@@ -96,7 +91,7 @@ describe('Mind#learn()', function() {
         { input: [1, 1], output: [ 0 ] }
       ]);
 
-    assert(mind.inputHiddenWeights instanceof Matrix);
+    assert(mind.weights.inputHidden instanceof Matrix);
   });
 });
 
