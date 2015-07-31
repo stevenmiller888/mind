@@ -164,7 +164,7 @@ Create a new instance of Mind that can learn to make predictions.
 
 The available options are:
 * `learningRate`: how quickly the network should learn.
-* `hiddenNeurons`: how many neurons are in the hidden layer.
+* `hiddenUnits`: how many neurons are in the hidden layer.
 * `activator`: which activation function to use, `sigmoid` or `htan`.
 * `iterations`: the number of iterations to run.
 
