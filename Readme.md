@@ -84,7 +84,7 @@ var result = mind.predict(character(
   '#######'
 ));
 
-console.log(result); // ~ 0.3
+console.log(result); // ~ 0.5
 
 /**
  * Turn the # into 1s and . into 0s.

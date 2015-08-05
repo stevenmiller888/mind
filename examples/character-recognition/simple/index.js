@@ -67,7 +67,7 @@ var result = mind.predict(character(
   '#######'
 ));
 
-console.log(result); // ~ 0.3
+console.log(result); // ~ 0.5
 
 /**
  * Map the letter to a number.
