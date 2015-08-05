@@ -205,6 +205,16 @@ Upload a mind:
 mind.upload(xor);
 ```
 
+#### .on()
+
+Listen for the 'data' event, which is fired with each iteration:
+
+```js
+mind.on('data', function(iteration, errors, results) {
+  // ...
+});
+```
+
 ## Note
 
 If you're interested in learning more about neural networks, you'll definitely want to check out these fantastic libraries:

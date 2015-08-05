@@ -5,6 +5,7 @@
  */
 
 var sigmoidPrime = require('sigmoid-prime');
+var Emitter = require('emitter-component');
 var htanPrime = require('htan-prime');
 var Matrix = require('node-matrix');
 var sigmoid = require('sigmoid');
@@ -38,108 +39,82 @@ function Mind(opts) {
   if (!(this instanceof Mind)) return new Mind(opts);
   opts = opts || {};
 
-  // parameters
-  this.learningRate = opts.learningRate || 0.7;
-  this.hiddenNeurons = opts.hiddenNeurons || 3;
-  this.iterations = opts.iterations || 10000;
+  opts.activator === 'sigmoid'
+    ? (this.activate = sigmoid, this.activatePrime = sigmoidPrime)
+    : (this.activate = htan, this.activatePrime = htanPrime);
 
-  if (opts.activator === 'htan') {
-    this.activate = htan;
-    this.activatePrime = htanPrime;
-  } else {
-    this.activate = sigmoid;
-    this.activatePrime = sigmoidPrime;
-  }
+  // hyperparameters
+  this.learningRate = opts.learningRate || 0.7;
+  this.iterations = opts.iterations || 10000;
+  this.hiddenUnits = opts.hiddenUnits || 3;
 }
+
+/**
+ * Mixin.
+ */
+
+Emitter(Mind.prototype);
 
 /**
  * Learn.
  *
- * This function is responsible for the following, in order:
+ * 	1. Normalize examples
+ * 	2. Setup weights
+ * 	3. Forward propagate to generate a prediction
+ *  4. Back propagate to adjust weights
+ *  5. Repeat (3) and (4) `this.iterations` times
  *
- * 	(1) Processing the examples by applying a transformation function, if necessary
- * 	(2) Turning them into matrices so we can use vector notation
- * 	(3) Setting up the weights between layers with random values and appropriate sizes
- * 	(4) Forward propagating the input (to generate a prediction)
- * 	(5) Back propagating the output (to adjust the weights)
- *
- * These five steps allows our network to learn the relationship
- * between the inputs and the outputs.
+ *  These five steps enable our network to learn the relationship
+ *  between inputs and outputs.
  *
  * @param {Array} examples
  * @return {Object} this
  */
 
 Mind.prototype.learn = function(examples) {
-  var transformer = this.transformer;
+  examples = normalize(examples);
 
-  // process the examples
-  var output = [];
-  var input = [];
-  examples.forEach(function(example) {
-    if (transformer) {
-      output.push(example.output.map(transformer.before));
-      input.push(example.input.map(transformer.before));
-    } else {
-      output.push(example.output);
-      input.push(example.input);
-    }
-  });
+  this.weights = {
+    inputHidden: Matrix({
+      columns: this.hiddenUnits,
+      rows: examples.input[0].length,
+      values: sample
+    }),
+    hiddenOutput: Matrix({
+      columns: examples.output[0].length,
+      rows: this.hiddenUnits,
+      values: sample
+    })
+  };
 
-  // create the output matrix, create the input matrix
-  var outputMatrix = Matrix(output);
-  var inputMatrix = Matrix(input);
-
-  // setup the weights for the hidden layer to the output layer
-  this.hiddenOutputWeights = Matrix({
-    columns: examples[0].output.length,
-    rows: this.hiddenNeurons,
-    values: sample
-  });
-
-  // setup the weights for the input layer to the hidden layer
-  this.inputHiddenWeights = Matrix({
-    columns: this.hiddenNeurons,
-    rows: examples[0].input.length,
-    values: sample
-  });
-
-  this.inputMatrix = inputMatrix;
-
-  // forward propagate, back propagate
   for (var i = 0; i < this.iterations; i++) {
-    this.forward(inputMatrix);
-    this.back(outputMatrix);
+    var results = this.forward(examples);
+    var errors = this.back(examples, results);
+
+    this.emit('data', i, errors, results);
   }
 
-  // allow chaining
   return this;
 };
 
 /**
  * Forward propagate.
  *
- * @param {Object} inputMatrix
+ * @param {Object} examples
  * @return {Object} this
  */
 
-Mind.prototype.forward = function(inputMatrix) {
+Mind.prototype.forward = function(examples) {
   var activate = this.activate;
+  var weights = this.weights;
+  var ret = {};
 
-  // compute hidden layer sum
-  this.hiddenSum = multiply(this.inputHiddenWeights, inputMatrix);
+  ret.hiddenSum = multiply(weights.inputHidden, examples.input);      // compute hidden layer sum
+  ret.hiddenResult = ret.hiddenSum.transform(activate);               // compute hidden layer result
+  ret.outputSum = multiply(weights.hiddenOutput, ret.hiddenResult);   // compute output layer sum
+  ret.outputResult = ret.outputSum.transform(activate);               // compute output layer result
 
-  // apply activation function to hidden layer sum
-  this.hiddenResult = this.hiddenSum.transform(activate);
-
-  // compute output layer sum
-  this.outputSum = multiply(this.hiddenOutputWeights, this.hiddenResult);
-
-  // apply activation function to output layer sum
-  this.outputResult = this.outputSum.transform(activate);
-
-  // allow chaining
-  return this;
+  return ret;
 };
 
 /**
@@ -148,115 +123,257 @@ Mind.prototype.forward = function(inputMatrix) {
  * @param {Object} outputMatrix
  */
 
-Mind.prototype.back = function(outputMatrix) {
+Mind.prototype.back = function(examples, results) {
   var activatePrime = this.activatePrime;
+  var learningRate = this.learningRate;
+  var weights = this.weights;
 
-  // compute output layer changes
-  var errorOutputLayer = subtract(outputMatrix, this.outputResult);
-  var deltaOutputLayer = dot(this.outputSum.transform(activatePrime), errorOutputLayer);
-  var hiddenOutputWeightsChanges = scalar(multiply(deltaOutputLayer, this.hiddenResult.transpose()), this.learningRate);
+  // compute weight adjustments
+  var errorOutputLayer = subtract(examples.output, results.outputResult);
+  var deltaOutputLayer = dot(results.outputSum.transform(activatePrime), errorOutputLayer);
+  var hiddenOutputChanges = scalar(multiply(deltaOutputLayer, results.hiddenResult.transpose()), learningRate);
+  var deltaHiddenLayer = dot(multiply(weights.hiddenOutput.transpose(), deltaOutputLayer), results.hiddenSum.transform(activatePrime));
+  var inputHiddenChanges = scalar(multiply(deltaHiddenLayer, examples.input.transpose()), learningRate);
 
-  // compute hidden layer changes
-  var multiplied = multiply(this.hiddenOutputWeights.transpose(), deltaOutputLayer);
-  var deltaHiddenLayer = dot(multiplied, this.hiddenSum.transform(activatePrime));
-  var inputHiddenWeightsChanges = scalar(multiply(deltaHiddenLayer, this.inputMatrix.transpose()), this.learningRate);
+  // adjust weights
+  weights.inputHidden = add(weights.inputHidden, inputHiddenChanges);
+  weights.hiddenOutput = add(weights.hiddenOutput, hiddenOutputChanges);
 
-  // compute the new weights
-  this.inputHiddenWeights = add(this.inputHiddenWeights, inputHiddenWeightsChanges);
-  this.hiddenOutputWeights = add(this.hiddenOutputWeights, hiddenOutputWeightsChanges);
-
-  // allow chaining
-  return this;
+  return errorOutputLayer;
 };
 
 /**
  * Predict.
  *
- * 	- This forward propagates the input data through the trained network
- * 	and returns the predicted output.
- *
  * @param {Array} input
  */
 
 Mind.prototype.predict = function(input) {
-  var transformer = this.transformer;
-
-  // apply `before` transform
-  if (transformer) {
-    for (var i = 0; i < input.length; i++) {
-      input[i] = transformer.before(input[i]);
-    }
-  }
-
-  // matrix-ify input data
-  var inputMatrix = Matrix([input]);
-
-  // forward propagate
-  this.forward(inputMatrix);
-
-  // prediction reference
-  var prediction = this.outputResult;
-
-  // apply `after` transform
-  if (transformer) {
-    for (var j = 0; j < prediction.numRows; j++) {
-      prediction[j] = transformer.after(prediction[j]);
-    }
-  }
-
-  return prediction[0];
+  var results = this.forward({ input: Matrix([input]) });
+  return results.outputResult[0];
 };
 
 /**
- * Upload.
- *
- * 	- This gives a hook for the user to plug-in the weights from a
- * 	previously trained network.
+ * Upload weights.
  *
  * @param {Object} obj
  * @return {Object} this
  */
 
 Mind.prototype.upload = function(obj) {
-  this.inputHiddenWeights = obj.inputHiddenWeights;
-  this.hiddenOutputWeights = obj.hiddenOutputWeights;
+  this.weights = {
+    hiddenOutput: obj.hiddenOutput,
+    inputHidden: obj.inputHidden
+  };
 
   return this;
 };
 
 /**
- * Download.
+ * Download weights.
  *
- * 	- This gives a hook for the user to download the
- * 	network's weights.
- *
- * @param {Object} obj
- * @return {Object} this
+ * @return {Object} weights
  */
 
 Mind.prototype.download = function() {
+  var weights = this.weights;
+
   return {
-    inputHiddenWeights: this.inputHiddenWeights,
-    hiddenOutputWeights: this.hiddenOutputWeights
+    hiddenOutput: weights.hiddenOutput,
+    inputHidden: weights.inputHidden
   };
 };
 
 /**
- * Transform.
+ * Normalize the data.
  *
- * 	- This gives a hook for the user to transform the dataset before and
- * 	after training.
- *
- * @param {Object} obj
- * @return {Object} this
+ * @param {Array} data
+ * @return {Object} ret
  */
 
-Mind.prototype.transform = function(obj) {
-  this.transformer = obj;
+function normalize(data) {
+  var ret = { input: [], output: [] };
+
+  for (var i = 0; i < data.length; i++) {
+    var datum = data[i];
+
+    ret.output.push(datum.output);
+    ret.input.push(datum.input);
+  }
+
+  ret.output = Matrix(ret.output);
+  ret.input = Matrix(ret.input);
+
+  return ret;
+}
+
+},{"emitter-component":2,"htan":4,"htan-prime":3,"node-matrix":5,"samples":6,"sigmoid":8,"sigmoid-prime":7}],2:[function(require,module,exports){
+
+/**
+ * Expose `Emitter`.
+ */
+
+module.exports = Emitter;
+
+/**
+ * Initialize a new `Emitter`.
+ *
+ * @api public
+ */
+
+function Emitter(obj) {
+  if (obj) return mixin(obj);
+};
+
+/**
+ * Mixin the emitter properties.
+ *
+ * @param {Object} obj
+ * @return {Object}
+ * @api private
+ */
+
+function mixin(obj) {
+  for (var key in Emitter.prototype) {
+    obj[key] = Emitter.prototype[key];
+  }
+  return obj;
+}
+
+/**
+ * Listen on the given `event` with `fn`.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.on =
+Emitter.prototype.addEventListener = function(event, fn){
+  this._callbacks = this._callbacks || {};
+  (this._callbacks[event] = this._callbacks[event] || [])
+    .push(fn);
   return this;
 };
 
-},{"htan":3,"htan-prime":2,"node-matrix":4,"samples":5,"sigmoid":7,"sigmoid-prime":6}],2:[function(require,module,exports){
+/**
+ * Adds an `event` listener that will be invoked a single
+ * time then automatically removed.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.once = function(event, fn){
+  var self = this;
+  this._callbacks = this._callbacks || {};
+
+  function on() {
+    self.off(event, on);
+    fn.apply(this, arguments);
+  }
+
+  on.fn = fn;
+  this.on(event, on);
+  return this;
+};
+
+/**
+ * Remove the given callback for `event` or all
+ * registered callbacks.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.off =
+Emitter.prototype.removeListener =
+Emitter.prototype.removeAllListeners =
+Emitter.prototype.removeEventListener = function(event, fn){
+  this._callbacks = this._callbacks || {};
+
+  // all
+  if (0 == arguments.length) {
+    this._callbacks = {};
+    return this;
+  }
+
+  // specific event
+  var callbacks = this._callbacks[event];
+  if (!callbacks) return this;
+
+  // remove all handlers
+  if (1 == arguments.length) {
+    delete this._callbacks[event];
+    return this;
+  }
+
+  // remove specific handler
+  var cb;
+  for (var i = 0; i < callbacks.length; i++) {
+    cb = callbacks[i];
+    if (cb === fn || cb.fn === fn) {
+      callbacks.splice(i, 1);
+      break;
+    }
+  }
+  return this;
+};
+
+/**
+ * Emit `event` with the given args.
+ *
+ * @param {String} event
+ * @param {Mixed} ...
+ * @return {Emitter}
+ */
+
+Emitter.prototype.emit = function(event){
+  this._callbacks = this._callbacks || {};
+  var args = [].slice.call(arguments, 1)
+    , callbacks = this._callbacks[event];
+
+  if (callbacks) {
+    callbacks = callbacks.slice(0);
+    for (var i = 0, len = callbacks.length; i < len; ++i) {
+      callbacks[i].apply(this, args);
+    }
+  }
+
+  return this;
+};
+
+/**
+ * Return array of callbacks for `event`.
+ *
+ * @param {String} event
+ * @return {Array}
+ * @api public
+ */
+
+Emitter.prototype.listeners = function(event){
+  this._callbacks = this._callbacks || {};
+  return this._callbacks[event] || [];
+};
+
+/**
+ * Check if this emitter has `event` handlers.
+ *
+ * @param {String} event
+ * @return {Boolean}
+ * @api public
+ */
+
+Emitter.prototype.hasListeners = function(event){
+  return !! this.listeners(event).length;
+};
+
+},{}],3:[function(require,module,exports){
 
 /**
  * Expose `htanPrime`.
@@ -274,7 +391,7 @@ function htanPrime(z) {
   return 1 - Math.pow((Math.exp(2 * z) - 1) / (Math.exp(2 * z) + 1), 2);
 }
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 
 /**
  * Expose `htan`.
@@ -291,7 +408,7 @@ module.exports = htan;
 function htan(z) {
   return (Math.exp(2 * z) - 1) / (Math.exp(2 * z) + 1);
 }
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 
 /**
  * Expose `Matrix`.
@@ -503,7 +620,7 @@ Matrix.prototype.transform = function(fn) {
   return result;
 };
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 
 /**
  * Expose `sample`.
@@ -521,7 +638,7 @@ function sample() {
   return Math.sqrt(-2 * Math.log(Math.random())) * Math.cos(2 * Math.PI * Math.random());
 }
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 
 /**
  * Expose `sigmoidPrime`.
@@ -541,7 +658,7 @@ function sigmoidPrime(z) {
   return Math.exp(-z) / Math.pow(1 + Math.exp(-z), 2);
 }
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 
 /**
  * Expose `sigmoid`.

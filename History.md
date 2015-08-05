@@ -1,4 +1,8 @@
 
+0.1.2 / August 4, 2015
+
+  * Updated to emit the 'data' event with each iteration
+
 0.1.1 / July 29, 2015
 
   * Simplified code
