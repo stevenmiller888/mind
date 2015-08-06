@@ -33,6 +33,7 @@ module.exports = Mind;
  *
  * @param {Object} opts
  * @return {Object} this
+ * @api public
  */
 
 function Mind(opts) {
@@ -46,6 +47,7 @@ function Mind(opts) {
   // hyperparameters
   this.learningRate = opts.learningRate || 0.7;
   this.iterations = opts.iterations || 10000;
+  this.hiddenLayers = opts.hiddenLayers || 1;
   this.hiddenUnits = opts.hiddenUnits || 3;
 }
 
@@ -69,23 +71,13 @@ Emitter(Mind.prototype);
  *
  * @param {Array} examples
  * @return {Object} this
+ * @api public
  */
 
 Mind.prototype.learn = function(examples) {
   examples = normalize(examples);
 
-  this.weights = {
-    inputHidden: Matrix({
-      columns: this.hiddenUnits,
-      rows: examples.input[0].length,
-      values: sample
-    }),
-    hiddenOutput: Matrix({
-      columns: examples.output[0].length,
-      rows: this.hiddenUnits,
-      values: sample
-    })
-  };
+  this.setup(examples);
 
   for (var i = 0; i < this.iterations; i++) {
     var results = this.forward(examples);
@@ -98,73 +90,145 @@ Mind.prototype.learn = function(examples) {
 };
 
 /**
+ * Setup the weights.
+ *
+ * @param {Object} examples
+ * @api private
+ */
+
+Mind.prototype.setup = function(examples) {
+  this.weights = [];
+
+  // input > hidden
+  this.weights.push(
+    Matrix({
+      rows: examples.input[0].length,
+      columns: this.hiddenUnits,
+      values: sample
+    })
+  );
+
+  // hidden > hidden
+  for (var i = 1; i < this.hiddenLayers; i++) {
+    this.weights.push(
+      Matrix({
+        rows: this.hiddenUnits,
+        columns: this.hiddenUnits,
+        values: sample
+      })
+    );
+  }
+
+  // hidden > output
+  this.weights.push(
+    Matrix({
+      rows: this.hiddenUnits,
+      columns: examples.output[0].length,
+      values: sample
+    })
+  );
+};
+
+/**
  * Forward propagate.
  *
  * @param {Object} examples
- * @return {Object} this
+ * @return {Array} results
+ * @api private
  */
 
 Mind.prototype.forward = function(examples) {
   var activate = this.activate;
   var weights = this.weights;
-  var ret = {};
+  var results = [];
 
-  ret.hiddenSum = multiply(weights.inputHidden, examples.input);      // compute hidden layer sum
-  ret.hiddenResult = ret.hiddenSum.transform(activate);               // compute hidden layer result
-  ret.outputSum = multiply(weights.hiddenOutput, ret.hiddenResult);   // compute output layer sum
-  ret.outputResult = ret.outputSum.transform(activate);               // compute output layer result
+  // sum the weight and input
+  function sum(w, i) {
+    var res = {};
 
-  return ret;
+    res.sum = multiply(w, i);
+    res.result = res.sum.transform(activate);
+
+    return res;
+  };
+
+  // input > hidden
+  results.push(
+    sum(weights[0], examples.input)
+  );
+
+  // hidden > hidden
+  for (var i = 1; i < this.hiddenLayers; i++) {
+    results.push(
+      sum(weights[i], results[i - 1].result)
+    );
+  }
+
+  // hidden > output
+  results.push(
+    sum(weights[weights.length - 1], results[results.length - 1].result)
+  );
+
+  return results;
 };
 
 /**
  * Back propagate.
  *
  * @param {Object} outputMatrix
+ * @api private
  */
 
 Mind.prototype.back = function(examples, results) {
   var activatePrime = this.activatePrime;
+  var hiddenLayers = this.hiddenLayers;
   var learningRate = this.learningRate;
   var weights = this.weights;
 
-  // compute weight adjustments
-  var errorOutputLayer = subtract(examples.output, results.outputResult);
-  var deltaOutputLayer = dot(results.outputSum.transform(activatePrime), errorOutputLayer);
-  var hiddenOutputChanges = scalar(multiply(deltaOutputLayer, results.hiddenResult.transpose()), learningRate);
-  var deltaHiddenLayer = dot(multiply(weights.hiddenOutput.transpose(), deltaOutputLayer), results.hiddenSum.transform(activatePrime));
-  var inputHiddenChanges = scalar(multiply(deltaHiddenLayer, examples.input.transpose()), learningRate);
+  // output > hidden
+  var error = subtract(examples.output, results[results.length - 1].result);
+  var delta = dot(results[results.length - 1].sum.transform(activatePrime), error);
+  var changes = scalar(multiply(delta, results[0].result.transpose()), learningRate);
+  weights[weights.length - 1] = add(weights[weights.length - 1], changes);
 
-  // adjust weights
-  weights.inputHidden = add(weights.inputHidden, inputHiddenChanges);
-  weights.hiddenOutput = add(weights.hiddenOutput, hiddenOutputChanges);
+  // hidden > hidden
+  for (var i = 1; i < hiddenLayers; i++) {
+    delta = dot(multiply(weights[weights.length - i].transpose(), delta), results[results.length - (i + 1)].sum.transform(activatePrime));
+    changes = scalar(multiply(delta, results[results.length - (i + 1)].result.transpose()), learningRate);
+    weights[weights.length - (i + 1)] = add(weights[weights.length - (i + 1)], changes);
+  }
 
-  return errorOutputLayer;
+  // hidden > input
+  delta = dot(multiply(weights[1].transpose(), delta), results[0].sum.transform(activatePrime));
+  changes = scalar(multiply(delta, examples.input.transpose()), learningRate);
+  weights[0] = add(weights[0], changes);
+
+  return error;
 };
 
 /**
  * Predict.
  *
  * @param {Array} input
+ * @api public
  */
 
 Mind.prototype.predict = function(input) {
   var results = this.forward({ input: Matrix([input]) });
-  return results.outputResult[0];
+
+  return results[results.length - 1].result[0];
 };
 
 /**
  * Upload weights.
  *
- * @param {Object} obj
+ * @param {Object} weights
  * @return {Object} this
+ * @api public
  */
 
-Mind.prototype.upload = function(obj) {
-  this.weights = {
-    hiddenOutput: obj.hiddenOutput,
-    inputHidden: obj.inputHidden
-  };
+Mind.prototype.upload = function(weights) {
+  this.weights = weights;
 
   return this;
 };
@@ -173,15 +237,11 @@ Mind.prototype.upload = function(obj) {
  * Download weights.
  *
  * @return {Object} weights
+ * @api public
  */
 
 Mind.prototype.download = function() {
-  var weights = this.weights;
-
-  return {
-    hiddenOutput: weights.hiddenOutput,
-    inputHidden: weights.inputHidden
-  };
+  return this.weights;
 };
 
 /**

@@ -26,9 +26,14 @@ describe('Mind()', function() {
     assert(mind instanceof Mind);
   });
 
-  it('should accept the number of hidden layer neurons as an option', function() {
+  it('should accept the number of hidden layer units as an option', function() {
     var mind = Mind({ hiddenUnits: 2 });
     assert(mind.hiddenUnits === 2);
+  });
+
+  it('should accept the number of hidden layer neurons as an option', function() {
+    var mind = Mind({ hiddenLayers: 3 });
+    assert(mind.hiddenLayers === 3);
   });
 
   it('should accept the learning rate as an option', function() {
@@ -57,9 +62,11 @@ describe('Mind()', function() {
   });
 
   it('should download the weights', function() {
-    var plugin = Mind().learn([{ input: [], output: [] }]).download();
-    assert(plugin.inputHidden, []);
-    assert(plugin.hiddenOutput, []);
+    var plugin = Mind().learn([{ input: [ 0 ], output: [ 0 ] }]).download();
+    assert(plugin[0].numRows === 1);
+    assert(plugin[0].numCols === 3);
+    assert(plugin[1].numRows === 3);
+    assert(plugin[1].numCols === 1);
   });
 
   it('should upload the weights', function() {
@@ -79,7 +86,7 @@ describe('Mind#learn()', function() {
         { input: [1, 1], output: [ 0 ] }
       ]);
 
-    assert(mind.weights.hiddenOutput instanceof Matrix);
+    assert(mind.weights[1] instanceof Matrix);
   });
 
   it('should create a weights matrix for the input layer to the hidden layer', function() {
@@ -91,7 +98,7 @@ describe('Mind#learn()', function() {
         { input: [1, 1], output: [ 0 ] }
       ]);
 
-    assert(mind.weights.inputHidden instanceof Matrix);
+    assert(mind.weights[0] instanceof Matrix);
   });
 });
 

@@ -2,7 +2,7 @@
   "name": "node-mind",
   "description": "A flexible neural network library",
   "author": "Steven Miller",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/stevenmiller888/mind"
@@ -31,7 +31,6 @@
   },
   "devDependencies": {
     "eslint": "^0.22.1",
-    "mind-currency": "0.0.1",
     "mind-xor": "0.0.2",
     "mocha": "2.x",
     "png-img": "^1.1.1"

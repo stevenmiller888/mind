@@ -84,7 +84,7 @@ var result = mind.predict(character(
   '#######'
 ));
 
-console.log(result); // ~ 0.3
+console.log(result); // ~ 0.5
 
 /**
  * Turn the # into 1s and . into 0s.
@@ -163,10 +163,11 @@ Here's a list of available plugins:
 Create a new instance of Mind that can learn to make predictions.
 
 The available options are:
-* `learningRate`: how quickly the network should learn.
-* `hiddenUnits`: how many neurons are in the hidden layer.
-* `activator`: which activation function to use, `sigmoid` or `htan`.
-* `iterations`: the number of iterations to run.
+* `activator`: the activation function to use, `sigmoid` or `htan`
+* `learningRate`: the speed at which the network will learn
+* `hiddenUnits`: the number of units in the hidden layer/s
+* `iterations`: the number of iterations to run
+* `hiddenLayers`: the number of hidden layers
 
 #### .learn()
 
