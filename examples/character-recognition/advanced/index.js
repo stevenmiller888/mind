@@ -12,7 +12,7 @@ var fs = require('fs');
  * Learn.
  */
 
-var mind = Mind({ iterations: 10, activator: 'sigmoid' })
+var mind = Mind({ iterations: 10, activator: 'sigmoid', hiddenLayers: 2 })
   .learn([
     { input: letter('A'), output: map('A') },
     { input: letter('B'), output: map('B') },

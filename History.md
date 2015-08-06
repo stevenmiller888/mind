@@ -1,4 +1,8 @@
 
+0.2.0 / August 5, 2015
+
+  * Updated to allow an arbitrary number of hidden layers
+
 0.1.2 / August 4, 2015
 
   * Updated to emit the 'data' event with each iteration

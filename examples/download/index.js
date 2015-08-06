@@ -21,4 +21,4 @@ var mind = Mind()
  * Download the mind.
  */
 
-mind.download(); // ~ { inputHiddenWeights: {Matrix}, hiddenOutputWeights: {Matrix} }
+mind.download();
