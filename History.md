@@ -1,5 +1,9 @@
 
-0.2.0 / August 5, 2015
+0.2.1 / August 6, 2015
+
+  * Bumped mind-xor
+
+0.2.0 / August 6, 2015
 
   * Updated to allow an arbitrary number of hidden layers
 
