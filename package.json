@@ -22,15 +22,15 @@
   "license": "MIT",
   "dependencies": {
     "emitter-component": "^1.1.1",
-    "htan": "0.0.1",
+    "htan": "0.0.2",
     "htan-prime": "0.0.1",
     "node-matrix": "0.1.1",
-    "samples": "0.0.1",
+    "samples": "0.0.2",
     "sigmoid": "0.0.1",
     "sigmoid-prime": "0.0.1"
   },
   "devDependencies": {
-    "eslint": "^0.22.1",
+    "eslint": "^1.7.3",
     "mind-xor": "0.0.3",
     "mocha": "2.x",
     "png-img": "^1.1.1"
