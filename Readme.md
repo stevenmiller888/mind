@@ -226,7 +226,7 @@ Also, here are some fantastic libraries you can check out:
 
 - [convnetjs](https://github.com/karpathy/convnetjs)
 - [synaptic](https://github.com/cazala/synaptic)
-- [brain](https://github.com/harthur/brain)
+- [brain](https://github.com/harthur-org/brain.js)
 
 ## License
 
