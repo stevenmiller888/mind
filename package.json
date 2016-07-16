@@ -22,7 +22,7 @@
   "license": "MIT",
   "dependencies": {
     "emitter-component": "^1.1.1",
-    "htan": "0.0.2",
+    "htan": "0.0.3",
     "htan-prime": "0.0.1",
     "node-matrix": "0.1.1",
     "samples": "0.0.2",
