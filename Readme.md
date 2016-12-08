@@ -1,6 +1,6 @@
 ![Mind Logo](https://cldup.com/D1yUfBz7Iu.png)
 
-A flexible neural network library for Node.js and the browser. Check out a live [demo](http://www.mindjs.net/) of a movie recommendation engine built with Mind.
+A flexible neural network library for Node.js and the browser. Check out a live [demo](http://stevenmiller888.github.io/mindjs.net/) of a movie recommendation engine built with Mind.
 
 [![NPM version][npm-image]][npm-url]
 [![build status][circle-image]][circle-url]
