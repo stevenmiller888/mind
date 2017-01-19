@@ -30,7 +30,7 @@
     "sigmoid-prime": "0.0.1"
   },
   "devDependencies": {
-    "eslint": "^2.0.0",
+    "eslint": "^3.0.0",
     "mind-xor": "0.0.3",
     "mocha": "2.x",
     "png-img": "^1.1.1"
