@@ -1,4 +1,8 @@
 
+0.3.0 / May 16, 2017
+
+  * Allow learning multiple times
+
 0.2.1 / August 6, 2015
 
   * Bumped mind-xor
