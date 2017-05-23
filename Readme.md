@@ -244,6 +244,6 @@ Also, here are some fantastic libraries you can check out:
 
 ---
 
-> [stevenmiller888.github.io](stevenmiller888.github.io) &nbsp;&middot;&nbsp;
+> [stevenmiller888.github.io](https://stevenmiller888.github.io) &nbsp;&middot;&nbsp;
 > GitHub [@stevenmiller888](https://github.com/stevenmiller888) &nbsp;&middot;&nbsp;
 > Twitter [@stevenmiller888](https://twitter.com/stevenmiller888)
