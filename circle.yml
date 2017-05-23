@@ -5,6 +5,8 @@ machine:
     PATH: "${PATH}:${HOME}/${CIRCLE_PROJECT_REPONAME}/node_modules/.bin"
 
 dependencies:
+  pre:
+    - npm config set "//registry.npmjs.org/:_authToken" $NPM_AUTH
   cache_directories:
     - ~/.cache/yarn
   override:
