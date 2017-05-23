@@ -117,38 +117,38 @@ class Mind extends Emitter {
    */
 
   forward (examples) {
-    const activate = this.activate
-    const weights = this.weights
     const results = []
 
-    // sum the weight and input
-    function sum (w, i) {
-      const res = {}
-
-      res.sum = Matrix.multiply(w, i)
-      res.result = res.sum.transform(activate)
-
-      return res
-    };
-
     // input > hidden
-    results.push(
-      sum(weights[0], examples.input)
-    )
+    results.push(this.sum(this.weights[0], examples.input))
 
     // hidden > hidden
     for (let i = 1; i < this.hiddenLayers; i++) {
-      results.push(
-        sum(weights[i], results[i - 1].result)
-      )
+      results.push(this.sum(this.weights[i], results[i - 1].result))
     }
 
     // hidden > output
-    results.push(
-      sum(weights[weights.length - 1], results[results.length - 1].result)
-    )
+    results.push(this.sum(this.weights[this.weights.length - 1], results[results.length - 1].result))
 
     return results
+  }
+
+  /**
+   * Sum `weight` and `input`.
+   *
+   * @param {Matrix} weight
+   * @param {Array} input
+   * @return {Object}
+   * @api private
+   */
+
+  sum (weight, input) {
+    const res = {}
+
+    res.sum = Matrix.multiply(weight, input)
+    res.result = res.sum.transform(this.activate)
+
+    return res
   }
 
   /**
