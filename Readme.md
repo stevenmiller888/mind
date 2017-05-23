@@ -14,14 +14,14 @@ A flexible neural network library for Node.js and the browser. Check out a live 
 
 ## Installation
 
-    $ npm install node-mind
-
-You can use Mind in the browser by requiring it with Duo or Browserify. Or you can simply use the prebuilt root `index.js` file directly, which will expose `Mind` on the `window` object.
+```bash
+$ yarn add node-mind
+```
 
 ## Usage
 
 ```js
-var Mind = require('node-mind');
+const Mind = require('node-mind');
 
 /**
  * Letters.
@@ -29,7 +29,7 @@ var Mind = require('node-mind');
  * - Imagine these # and . represent black and white pixels.
  */
 
-var a = character(
+const a = character(
   '.#####.' +
   '#.....#' +
   '#.....#' +
@@ -37,9 +37,9 @@ var a = character(
   '#.....#' +
   '#.....#' +
   '#.....#'
-);
+)
 
-var b = character(
+const b = character(
   '######.' +
   '#.....#' +
   '#.....#' +
@@ -47,9 +47,9 @@ var b = character(
   '#.....#' +
   '#.....#' +
   '######.'
-);
+)
 
-var c = character(
+const c = character(
   '#######' +
   '#......' +
   '#......' +
@@ -57,24 +57,24 @@ var c = character(
   '#......' +
   '#......' +
   '#######'
-);
+)
 
 /**
  * Learn the letters A through C.
  */
 
-var mind = Mind()
+const mind = Mind()
   .learn([
     { input: a, output: map('a') },
     { input: b, output: map('b') },
     { input: c, output: map('c') }
-  ]);
+  ])
 
 /**
  * Predict the letter C, even with a pixel off.
  */
 
-var result = mind.predict(character(
+const result = mind.predict(character(
   '#######' +
   '#......' +
   '#......' +
@@ -82,9 +82,9 @@ var result = mind.predict(character(
   '#......' +
   '##.....' +
   '#######'
-));
+))
 
-console.log(result); // ~ 0.5
+console.log(result) // ~ 0.5
 
 /**
  * Turn the # into 1s and . into 0s.
@@ -94,11 +94,11 @@ function character(string) {
   return string
     .trim()
     .split('')
-    .map(integer);
+    .map(integer)
 
   function integer(symbol) {
-    if ('#' === symbol) return 1;
-    if ('.' === symbol) return 0;
+    if ('#' === symbol) return 1
+    if ('.' === symbol) return 0
   }
 }
 
@@ -107,10 +107,10 @@ function character(string) {
  */
 
 function map(letter) {
-  if (letter === 'a') return [ 0.1 ];
-  if (letter === 'b') return [ 0.3 ];
-  if (letter === 'c') return [ 0.5 ];
-  return 0;
+  if (letter === 'a') return [ 0.1 ]
+  if (letter === 'b') return [ 0.3 ]
+  if (letter === 'c') return [ 0.5 ]
+  return 0
 }
 ```
 
@@ -121,10 +121,10 @@ Use plugins created by the Mind community to configure pre-trained networks that
 Here's a cool example of the way you could use a hypothetical `mind-ocr` plugin:
 
 ```js
-var Mind = require('node-mind');
-var ocr = require('mind-ocr');
+const Mind = require('node-mind')
+const ocr = require('mind-ocr')
 
-var mind = Mind()
+const mind = Mind()
   .upload(ocr)
   .predict(
     '.#####.' +
@@ -134,15 +134,15 @@ var mind = Mind()
     '#.....#' +
     '#.....#' +
     '#.....#'
-  );
+  )
 ```
 
 To create a plugin, simply call `download` on your trained mind:
 
 ```js
-var Mind = require('node-mind');
+const Mind = require('node-mind')
 
-var mind = Mind()
+const mind = Mind()
   .learn([
     { input: [0, 0], output: [ 0 ] },
     { input: [0, 1], output: [ 1 ] },
@@ -150,7 +150,7 @@ var mind = Mind()
     { input: [1, 1], output: [ 0 ] }
   ]);
 
-var xor = mind.download();
+const xor = mind.download()
 ```
 
 Here's a list of available plugins:
@@ -179,7 +179,7 @@ mind.learn([
   { input: [0, 1], output: [ 1 ] },
   { input: [1, 0], output: [ 1 ] },
   { input: [1, 1], output: [ 0 ] }
-]);
+])
 ```
 
 #### .predict()
@@ -187,7 +187,7 @@ mind.learn([
 Make a prediction:
 
 ```js
-mind.predict([0, 1]);
+mind.predict([0, 1])
 ```
 
 #### .download()
@@ -195,7 +195,7 @@ mind.predict([0, 1]);
 Download a mind:
 
 ```js
-var xor = mind.download();
+const xor = mind.download()
 ```
 
 #### .upload()
@@ -203,7 +203,7 @@ var xor = mind.download();
 Upload a mind:
 
 ```js
-mind.upload(xor);
+mind.upload(xor)
 ```
 
 #### .on()
@@ -211,9 +211,9 @@ mind.upload(xor);
 Listen for the 'data' event, which is fired with each iteration:
 
 ```js
-mind.on('data', function(iteration, errors, results) {
+mind.on('data', (iteration, errors, results) => {
   // ...
-});
+})
 ```
 
 ## Note

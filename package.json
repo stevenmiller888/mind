@@ -18,7 +18,7 @@
     "mind",
     "nn"
   ],
-  "main": "lib/index.js",
+  "main": "index.js",
   "license": "MIT",
   "dependencies": {
     "emitter-component": "^1.1.1",
@@ -30,9 +30,14 @@
     "sigmoid-prime": "0.0.1"
   },
   "devDependencies": {
-    "eslint": "^2.0.0",
+    "ava": "^0.19.1",
+    "babel-eslint": "^7.2.3",
     "mind-xor": "0.0.3",
-    "mocha": "2.x",
-    "png-img": "^1.1.1"
+    "nyc": "^10.3.2",
+    "png-img": "^1.1.1",
+    "standard": "^10.0.2"
+  },
+  "standard": {
+    "parser": "babel-eslint"
   }
 }

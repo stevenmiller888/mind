@@ -3,13 +3,13 @@
  * Dependencies.
  */
 
-var xor = require('mind-xor');
-var Mind = require('../..');
+const xor = require('mind-xor')
+const Mind = require('../..')
 
 /**
  * Upload xor.
  */
 
-var mind = Mind().upload(xor);
-var result = mind.predict([0, 1]);
-console.log(result);  // ~ 1
+const mind = new Mind().upload(xor)
+const result = mind.predict([0, 1])
+console.log(result)  // ~ 1
