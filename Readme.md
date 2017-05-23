@@ -216,6 +216,18 @@ mind.on('data', (iteration, errors, results) => {
 })
 ```
 
+## Releasing / Publishing
+
+CircleCI will handle publishing to npm. To cut a new release, just do:
+
+```
+$ git changelog --tag <version>
+$ vim package.json # enter <version>
+$ git release <version>
+```
+
+Where `<version>` follows the [semver](http://semver.org/) spec.
+
 ## Note
 
 If you're interested in learning more, I wrote a blog post on how to build your own neural network:
