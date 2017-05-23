@@ -1,10 +1,8 @@
 ![Mind Logo](https://cldup.com/D1yUfBz7Iu.png)
 
-A flexible neural network library for Node.js and the browser. Check out a live [demo](http://stevenmiller888.github.io/mindjs.net/) of a movie recommendation engine built with Mind.
+[![CircleCI](https://circleci.com/gh/stevenmiller888/mind.svg?style=svg)](https://circleci.com/gh/stevenmiller888/mind)
 
-[![NPM version][npm-image]][npm-url]
-[![build status][circle-image]][circle-url]
-[![license][license-image]][license-url]
+A flexible neural network library for Node.js and the browser. Check out a live [demo](http://stevenmiller888.github.io/mindjs.net/) of a movie recommendation engine built with Mind.
 
 ## Features
 
@@ -244,9 +242,8 @@ Also, here are some fantastic libraries you can check out:
 
 [MIT](https://tldrlegal.com/license/mit-license)
 
-[npm-image]: https://img.shields.io/npm/v/node-mind.svg?style=flat-square
-[npm-url]: https://npmjs.org/package/node-mind
-[circle-image]: https://img.shields.io/circleci/project/stevenmiller888/mind.svg
-[circle-url]: https://circleci.com/gh/stevenmiller888/mind
-[license-image]: https://img.shields.io/npm/l/express.svg
-[license-url]: https://tldrlegal.com/license/mit-license
+---
+
+> [stevenmiller888.github.io](stevenmiller888.github.io) &nbsp;&middot;&nbsp;
+> GitHub [@stevenmiller888](https://github.com/stevenmiller888) &nbsp;&middot;&nbsp;
+> Twitter [@stevenmiller888](https://twitter.com/stevenmiller888)
