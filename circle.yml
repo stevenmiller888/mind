@@ -1,3 +1,19 @@
 machine:
   node:
-    version: 0.12
+    version: 7
+
+dependencies:
+  cache_directories:
+    - ~/.cache/yarn
+  override:
+    - make node_modules
+
+test:
+  override:
+    - make test
+
+deployment:
+  publish:
+    tag: /[0-9]+(\.[0-9]+)*(-.+)?/
+    commands:
+      - npm publish

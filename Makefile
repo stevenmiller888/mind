@@ -1,62 +1,17 @@
-
-#
-# Binaries.
-#
-
-BIN := ./node_modules/.bin
-ESLINT := $(BIN)/eslint
-MOCHA := $(BIN)/mocha
-
-#
-# Default.
-#
-
-default: index.js
-
-#
-# Browserify.
-#
-
-index.js: node_modules $(js)
-	@browserify -s Mind lib/index.js > index.js
-
-#
-# Test.
-#
+SRC := index.js
+TESTS := test.js
 
 test: node_modules
-	@$(MOCHA) test --reporter spec
+	./node_modules/.bin/ava
 
-#
-# Test style.
-#
-
-test-style: node_modules
-	@$(ESLINT) .
-
-#
-# Dependencies.
-#
+coverage: $(SRC) $(TESTS) node_modules
+	./node_modules/.bin/nyc --reporter=lcov --reporter=html ./node_modules/.bin/ava
 
 node_modules: package.json
-	@npm install
-
-#
-# Clean.
-#
+	yarn
+	touch $@
 
 clean:
-	@rm -rf *.log
-	
-#
-# Clean dependencies.
-#
+	rm -rf coverage .nyc_output
 
-clean-deps:
-	@rm -rf node_modules
-
-#
-# Phonies.
-#
-
-.PHONY: test test-style
+.PHONY: test clean
