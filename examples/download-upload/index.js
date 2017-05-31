@@ -21,4 +21,17 @@ const mind = new Mind()
  * Download the mind.
  */
 
-mind.download()
+const downloadedMind = mind.download()
+
+/**
+ * Upload the downloaded mind.
+ */
+
+const uploadedMind = new Mind().upload(downloadedMind)
+
+/**
+ * Predict.
+ */
+
+const result = uploadedMind.predict([0, 1])
+console.log(result)  // ~ 1
