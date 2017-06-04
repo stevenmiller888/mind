@@ -24,6 +24,7 @@
     "emitter-component": "^1.1.1",
     "htan": "0.0.3",
     "htan-prime": "0.0.1",
+    "mathjs": "^3.13.3",
     "node-matrix": "0.1.1",
     "samples": "0.0.2",
     "sigmoid": "0.0.1",

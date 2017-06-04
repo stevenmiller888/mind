@@ -1,7 +1,7 @@
 const sigmoidPrime = require('sigmoid-prime')
 const Emitter = require('emitter-component')
 const htanPrime = require('htan-prime')
-const Matrix = require('node-matrix')
+const math = require('mathjs')
 const sigmoid = require('sigmoid')
 const sample = require('samples')
 const htan = require('htan')
@@ -79,34 +79,18 @@ class Mind extends Emitter {
     this.weights = []
 
     // input > hidden
-    this.weights.push(
-      Matrix({
-        rows: examples.input[0].length,
-        columns: this.hiddenUnits,
-        values: sample
-      })
-    )
+    this.weights.push(math.ones(examples.input[0].length, this.hiddenUnits))
 
     // hidden > hidden
     for (let i = 1; i < this.hiddenLayers; i++) {
-      this.weights.push(
-        Matrix({
-          rows: this.hiddenUnits,
-          columns: this.hiddenUnits,
-          values: sample
-        })
-      )
+      this.weights.push(math.ones(this.hiddenUnits, this.hiddenUnits))
     }
 
     // hidden > output
-    this.weights.push(
-      Matrix({
-        rows: this.hiddenUnits,
-        columns: examples.output[0].length,
-        values: sample
-      })
-    )
+    this.weights.push(math.ones(this.hiddenUnits, examples.output[0].length))
   }
+
+  // ones: cols x row
 
   /**
    * Forward propagate.
@@ -145,8 +129,8 @@ class Mind extends Emitter {
   sum (weight, input) {
     const res = {}
 
-    res.sum = Matrix.multiply(weight, input)
-    res.result = res.sum.transform(this.activate)
+    res.sum = math.multiply(input, weight)
+    res.result = res.sum.map((value) => this.activate(value))
 
     return res
   }
@@ -159,28 +143,27 @@ class Mind extends Emitter {
    */
 
   back (examples, results) {
-    const activatePrime = this.activatePrime
     const hiddenLayers = this.hiddenLayers
     const learningRate = this.learningRate
     const weights = this.weights
 
     // output > hidden
-    const error = Matrix.subtract(examples.output, results[results.length - 1].result)
-    let delta = Matrix.multiplyElements(results[results.length - 1].sum.transform(activatePrime), error)
-    let changes = Matrix.multiplyScalar(Matrix.multiply(delta, results[hiddenLayers - 1].result.transpose()), learningRate)
-    weights[weights.length - 1] = Matrix.add(weights[weights.length - 1], changes)
+    const error = math.subtract(examples.output, results[results.length - 1].result)
+    let delta = math.dotMultiply(results[results.length - 1].sum.map(value => this.activatePrime(value)), error)
+    let changes = math.multiply(math.transpose(results[hiddenLayers - 1].result), delta).map(value => value * learningRate)
+    weights[weights.length - 1] = math.add(weights[weights.length - 1], changes)
 
     // hidden > hidden
     for (let i = 1; i < hiddenLayers; i++) {
-      delta = Matrix.multiplyElements(Matrix.multiply(weights[weights.length - i].transpose(), delta), results[results.length - (i + 1)].sum.transform(activatePrime))
-      changes = Matrix.multiplyScalar(Matrix.multiply(delta, results[results.length - (i + 1)].result.transpose()), learningRate)
-      weights[weights.length - (i + 1)] = Matrix.add(weights[weights.length - (i + 1)], changes)
+      delta = math.dotMultiply(math.multiply(delta, math.transpose(weights[weights.length - i])), results[results.length - (i + 1)].sum.map(value => this.activatePrime(value)))
+      changes = math.multiply(math.transpose(results[results.length - (i + 1)].result), delta).map(value => value * learningRate)
+      weights[weights.length - (i + 1)] = math.add(weights[weights.length - (i + 1)], changes)
     }
 
     // hidden > input
-    delta = Matrix.multiplyElements(Matrix.multiply(weights[1].transpose(), delta), results[0].sum.transform(activatePrime))
-    changes = Matrix.multiplyScalar(Matrix.multiply(delta, examples.input.transpose()), learningRate)
-    weights[0] = Matrix.add(weights[0], changes)
+    delta = math.dotMultiply(math.multiply(delta, math.transpose(weights[1])), results[0].sum.map(value => this.activatePrime(value)))
+    changes = math.multiply(math.transpose(examples.input), delta).map(value => value * learningRate)
+    weights[0] = math.add(weights[0], changes)
 
     return error
   }
@@ -193,8 +176,8 @@ class Mind extends Emitter {
    */
 
   predict (input) {
-    const results = this.forward({ input: Matrix([input]) })
-    return results[results.length - 1].result[0]
+    const results = this.forward({ input: [ input ] })
+    return results[results.length - 1].result._data[0]
   }
 
   /**
@@ -239,8 +222,8 @@ function normalize (data) {
     ret.input.push(data[i].input)
   }
 
-  ret.output = Matrix(ret.output)
-  ret.input = Matrix(ret.input)
+  ret.output = ret.output
+  ret.input = ret.input
 
   return ret
 }
