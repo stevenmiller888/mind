@@ -3,7 +3,6 @@ const Emitter = require('emitter-component')
 const htanPrime = require('htan-prime')
 const math = require('mathjs')
 const sigmoid = require('sigmoid')
-const sample = require('samples')
 const htan = require('htan')
 
 class Mind extends Emitter {
