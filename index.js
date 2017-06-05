@@ -78,18 +78,16 @@ class Mind extends Emitter {
     this.weights = []
 
     // input > hidden
-    this.weights.push(math.ones(examples.input[0].length, this.hiddenUnits))
+    this.weights.push(math.ones(examples.input[0].length, this.hiddenUnits).map(v => math.random(v)))
 
     // hidden > hidden
     for (let i = 1; i < this.hiddenLayers; i++) {
-      this.weights.push(math.ones(this.hiddenUnits, this.hiddenUnits))
+      this.weights.push(math.ones(this.hiddenUnits, this.hiddenUnits).map(v => math.random(v)))
     }
 
     // hidden > output
-    this.weights.push(math.ones(this.hiddenUnits, examples.output[0].length))
+    this.weights.push(math.ones(this.hiddenUnits, examples.output[0].length).map(v => math.random(v)))
   }
-
-  // ones: cols x row
 
   /**
    * Forward propagate.
