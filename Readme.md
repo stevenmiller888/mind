@@ -61,7 +61,7 @@ const c = character(
  * Learn the letters A through C.
  */
 
-const mind = Mind()
+const mind = new Mind({ activator: 'sigmoid' })
   .learn([
     { input: a, output: map('a') },
     { input: b, output: map('b') },
