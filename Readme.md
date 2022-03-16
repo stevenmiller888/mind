@@ -1,3 +1,5 @@
+[![](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner2-direct.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
+
 ![Mind Logo](https://cldup.com/D1yUfBz7Iu.png)
 
 [![CircleCI](https://circleci.com/gh/stevenmiller888/mind.svg?style=svg)](https://circleci.com/gh/stevenmiller888/mind)
